@@ -99,7 +99,9 @@ CrystalPlasticityDislocationEdgeScrew::CrystalPlasticityDislocationEdgeScrew(
 	_dislocation_immobile_total(declareProperty<Real>(_base_name + "dislocation_immobile_total")),
 	
 	_dislo_velocity_edge(declareProperty<std::vector<Real>>("dislo_velocity_edge")),
+	_dislo_velocity_edge_old(getMaterialPropertyOld<std::vector<Real>>("dislo_velocity_edge")),
 	_dislo_velocity_screw(declareProperty<std::vector<Real>>("dislo_velocity_screw")),
+	_tau_old(getMaterialPropertyOld<std::vector<Real>>(_base_name + "applied_shear_stress")),
 		
 	// DDC related variables
 	_kappa_grad(_number_slip_systems, 0.00),
@@ -403,12 +405,16 @@ CrystalPlasticityDislocationEdgeScrew::getDisloVelocity()
 		t_run[i] = _L_bar[i] / vel_run[i];
 		_dislo_velocity_edge[_qp][i] = tau_effSign[i]*_L_bar[i]/ (t_wait[i] + t_run[i]);
 
+    // Analytical 
 		inner = 1.0 - std::pow((tau_effAbs[i] / slip_r[i] ),q1);
 		deltaG  = deltaG0*( std::pow(inner,q2) );
 		exp_arg = deltaG / (boltz*temp);
 		dtw_dtau = (-1)*q1*q2*deltaG0/(omega0*boltz*temp) * exp(exp_arg) * ( std::pow(inner,q2-1) ) * std::pow((tau_effAbs[i] / slip_r[i] ),q1-1) *(tau_effSign[i]/slip_r[i]);
 		dtr_dtau = (_L_bar[i]*B0/_burgers_vector_mag)*(tau_effSign[i]/std::pow(tau_effAbs[i],2));
 		_dv_dtau[i] = -1*_L_bar[i]*std::pow((t_wait[i] + t_run[i]),-2) * (dtw_dtau + dtr_dtau);
+	// Finite Differnece
+	   //_dv_dtau[i] = (_dislo_velocity_edge[_qp][i] - _dislo_velocity_edge_old[_qp][i])/(_tau[_qp][i] - _tau_old[_qp][i]);
+	   
 		}
 	else
 	  {

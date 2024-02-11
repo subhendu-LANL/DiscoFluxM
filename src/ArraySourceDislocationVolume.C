@@ -79,17 +79,9 @@ ArraySourceDislocationVolume::computeDisloVelocity()
   
   for (unsigned int i = 0; i < _number_slip_systems; ++i)
   {
-	dislo_velocity[i] = 0.00;
-  switch (_dislocationcharacter)
-		{
-			case DislocationCharacter::edge:
-	    dislo_velocity[i] = std::abs(_dislo_velocity_CP_edge[_qp][i]);
-			break;
-			case DislocationCharacter::screw:
-	    dislo_velocity[i] = std::abs(_dislo_velocity_CP_screw[_qp][i]);
-			break;
-			//default:
-		}
+	  dislo_velocity[i] = 0.00;
+	  dislo_velocity[i] = std::abs(_dislo_velocity_CP_edge[_qp][i]);
+
   }
 }
 
@@ -97,7 +89,6 @@ void
 ArraySourceDislocationVolume::computeQpResidual(RealEigenVector & residual)
 {
 	unsigned int _number_slip_systems = _count;
-  Real _dislocation_mobile_increment_nucl = 0.00;
   Real _dislocation_mobile_increment_mult = 0.00;
   Real _dislocation_mobile_increment_ann = 0.00;
   Real _dislocation_mobile_increment_trap = 0.00;
@@ -112,12 +103,11 @@ ArraySourceDislocationVolume::computeQpResidual(RealEigenVector & residual)
   {  
 	dislocation_mobile_increment[i] = 0.00;
   slip_increment[i] = _u[_qp][i] *_dislo_density_factor_CDT * _burgers_vector_mag * dislo_velocity[i];
-		_dislocation_mobile_increment_nucl = 0.00;
 		_dislocation_mobile_increment_mult = (_C_multi / std::pow(_burgers_vector_mag,2))* std::abs(slip_increment[i]);
 		_dislocation_mobile_increment_trap = (_C_trap/_burgers_vector_mag)*std::pow(_u[_qp][i]*_dislo_density_factor_CDT,0.5)* std::abs(slip_increment[i]);
 		_dislocation_mobile_increment_ann = (_C_m_ann*_u[_qp][i]*_dislo_density_factor_CDT)* std::abs(slip_increment[i]);
 
-    dislocation_mobile_increment[i] = _dislocation_mobile_increment_nucl + _dislocation_mobile_increment_mult - _dislocation_mobile_increment_trap - _dislocation_mobile_increment_ann;
+    dislocation_mobile_increment[i] =  _dislocation_mobile_increment_mult - _dislocation_mobile_increment_trap - _dislocation_mobile_increment_ann;
 	dislocation_mobile_increment[i] *= 1.0/_dislo_density_factor_CDT;  
 	
 	residual[i] = -_test[_i][_qp] * dislocation_mobile_increment[i];

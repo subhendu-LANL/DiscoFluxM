@@ -130,7 +130,9 @@ protected:
   const MaterialProperty<std::vector<Real>> & _dislocation_immobile_old;
   MaterialProperty<Real> & _dislocation_immobile_total;
   MaterialProperty<std::vector<Real>> & _dislo_velocity_edge;
+  const MaterialProperty<std::vector<Real>> & _dislo_velocity_edge_old;
   MaterialProperty<std::vector<Real>> & _dislo_velocity_screw;
+  const MaterialProperty<std::vector<Real>> & _tau_old;
   
   // DDC related variables
   std::vector<RealVectorValue> _kappa_grad;
