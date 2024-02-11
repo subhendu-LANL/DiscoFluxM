@@ -87,7 +87,7 @@ protected:
   virtual void storeDislocationMobilityInformation();
 
   
-  const Real _xm, _lattice_friction;
+  const Real _lattice_friction;
   const Real _burgers_vector_mag;
   const Real _dislo_density_initial;
   const Real _dislo_density_factor_CDT;

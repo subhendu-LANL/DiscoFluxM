@@ -41,16 +41,15 @@ CrystalPlasticityDislocationEdgeScrew::validParams()
   
   params.addClassDescription("Calculates the updated stress based on DiscoFlux crystal plasticity material model.");
   
-  params.addParam<Real>("xm", 0.1, "exponent for slip rate");
-  params.addParam<Real>("lattice_friction", 200, "initial lattice friction strength of the material in MPa");  
+  params.addParam<Real>("lattice_friction", 210, "initial lattice friction strength of the material in MPa");  
   params.addParam<Real>("burgers_vector_mag",1.0e-07,"Magnitude of the Burgers vector in mm");
   params.addParam<Real>("dislo_density_initial",1.0e+5,"Initial immobile dislocation density");
   params.addParam<Real>("dislo_density_factor_CDT",1.0,"factor to convert the dislocation density from CDT to CP, this is for scaling of solution variable");
   
   params.addParam<Real>("C_multi", 8.96e-05, "parameter for dislocation multiplication");
-  params.addParam<Real>("C_trap", 3.0e-03, "parameter for dislocation trapping");
-  params.addParam<Real>("C_m_ann", 0.5, "parameter for dislocation mobile annihilation");
-  params.addParam<Real>("C_im_ann", 0.5, "parameter for dislocation immobile annihilation");
+  params.addParam<Real>("C_trap", 3.01e-03, "parameter for dislocation trapping");
+  params.addParam<Real>("C_m_ann", 0.51, "parameter for dislocation mobile annihilation");
+  params.addParam<Real>("C_im_ann", 0.51, "parameter for dislocation immobile annihilation");
   params.addParam<Real>("Coeff_hardening", 0.5, "parameter to control the material hardening");
   
   params.addCoupledVar("DD_EdgePositive", 1.0e+5, "Coupled dislocation density, EdgePositive");
@@ -64,7 +63,6 @@ CrystalPlasticityDislocationEdgeScrew::validParams()
 CrystalPlasticityDislocationEdgeScrew::CrystalPlasticityDislocationEdgeScrew(
     const InputParameters & parameters)
   : CrystalPlasticityStressUpdateBase(parameters),
-    _xm(getParam<Real>("xm")),
 	_lattice_friction(getParam<Real>("lattice_friction")),
 	
 	_burgers_vector_mag(getParam<Real>("burgers_vector_mag")),
