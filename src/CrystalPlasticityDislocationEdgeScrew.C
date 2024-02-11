@@ -42,10 +42,9 @@ CrystalPlasticityDislocationEdgeScrew::validParams()
   params.addClassDescription("Calculates the updated stress based on DiscoFlux crystal plasticity material model.");
   
   params.addParam<Real>("xm", 0.1, "exponent for slip rate");
-  params.addParam<Real>("lattice_friction", 10, "initial lattice friction strength of the material in MPa");  
+  params.addParam<Real>("lattice_friction", 200, "initial lattice friction strength of the material in MPa");  
   params.addParam<Real>("burgers_vector_mag",1.0e-07,"Magnitude of the Burgers vector in mm");
-  params.addParam<Real>("dislo_max_velocity",1.0e-02,"Maximum dislocation velocity (phonon drag) in mm/s");
-  params.addParam<Real>("dislo_density_initial",1.0e+8,"Initial immobile dislocation density");
+  params.addParam<Real>("dislo_density_initial",1.0e+5,"Initial immobile dislocation density");
   params.addParam<Real>("dislo_density_factor_CDT",1.0,"factor to convert the dislocation density from CDT to CP, this is for scaling of solution variable");
   
   params.addParam<Real>("C_multi", 8.96e-05, "parameter for dislocation multiplication");
@@ -69,7 +68,6 @@ CrystalPlasticityDislocationEdgeScrew::CrystalPlasticityDislocationEdgeScrew(
 	_lattice_friction(getParam<Real>("lattice_friction")),
 	
 	_burgers_vector_mag(getParam<Real>("burgers_vector_mag")),
-	_dislo_max_velocity(getParam<Real>("dislo_max_velocity")),
 	_dislo_density_initial(getParam<Real>("dislo_density_initial")),
 	_dislo_density_factor_CDT(getParam<Real>("dislo_density_factor_CDT")),
 	_C_multi(getParam<Real>("C_multi")),
@@ -327,6 +325,29 @@ CrystalPlasticityDislocationEdgeScrew::updateSubstepConstitutiveVariableValues()
   _previous_substep_dislocation_immobile = _dislocation_immobile[_qp];
 }
 
+
+//----Compute the back stress based on Dislocation Deformation Compatibility(DDC)
+void
+CrystalPlasticityDislocationEdgeScrew::DDCUpdate()
+{	
+
+	Real dislocationsPositive, dislocationsNegative;
+  
+		for (unsigned int i = 0; i < _number_slip_systems; ++i)
+		  {	
+			slip_direction_rotated = _crysrot[_qp] * _slip_direction[i];
+			slip_plane_normal_rotated = _crysrot[_qp] * _slip_plane_normal[i];
+			_L_bar[i] = std::pow((_dislocation_mobile[_qp][i] + _dislocation_immobile[_qp][i]),-0.5); 
+			dislocationsPositive = _DD_EdgePositive[_qp][i];
+			dislocationsPositive = _DD_EdgeNegative[_qp][i];
+
+			_kappa_grad[i](0) = (_DD_EdgePositive_Grad[_qp](i) - _DD_EdgeNegative_Grad[_qp](i))*_dislo_density_factor_CDT;
+			_kappa_grad[i](1) = (_DD_EdgePositive_Grad[_qp](i+_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+_number_slip_systems))*_dislo_density_factor_CDT;
+			_kappa_grad[i](2) = (_DD_EdgePositive_Grad[_qp](i+2*_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+2*_number_slip_systems))*_dislo_density_factor_CDT;
+			_tau_b_local[i] = 0.01 * (( mu * std::pow(_L_bar[i],1))/(2*3.141*(1-nu)))*_burgers_vector_mag * (_kappa_grad[i]*slip_direction_rotated);
+		  }
+}
+
 // Calculate Dislocation Density increment
 void
 CrystalPlasticityDislocationEdgeScrew::getDDIncrements()
@@ -419,27 +440,4 @@ CrystalPlasticityDislocationEdgeScrew::getDisloVelocity()
 	  }
   }
 
-}
-
-
-//----Compute the back stress based on Dislocation Deformation Compatibility(DDC)
-void
-CrystalPlasticityDislocationEdgeScrew::DDCUpdate()
-{	
-
-	Real dislocationsPositive, dislocationsNegative;
-  
-		for (unsigned int i = 0; i < _number_slip_systems; ++i)
-		  {	
-			slip_direction_rotated = _crysrot[_qp] * _slip_direction[i];
-			slip_plane_normal_rotated = _crysrot[_qp] * _slip_plane_normal[i];
-			_L_bar[i] = std::pow((_dislocation_mobile[_qp][i] + _dislocation_immobile[_qp][i]),-0.5); 
-			dislocationsPositive = _DD_EdgePositive[_qp][i];
-			dislocationsPositive = _DD_EdgeNegative[_qp][i];
-
-			_kappa_grad[i](0) = (_DD_EdgePositive_Grad[_qp](i) - _DD_EdgeNegative_Grad[_qp](i))*_dislo_density_factor_CDT;
-			_kappa_grad[i](1) = (_DD_EdgePositive_Grad[_qp](i+_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+_number_slip_systems))*_dislo_density_factor_CDT;
-			_kappa_grad[i](2) = (_DD_EdgePositive_Grad[_qp](i+2*_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+2*_number_slip_systems))*_dislo_density_factor_CDT;
-			_tau_b_local[i] = (( mu * std::pow(_L_bar[i],1))/(2*3.141*(1-nu)))*_burgers_vector_mag * (_kappa_grad[i]*slip_direction_rotated);
-		  }
 }

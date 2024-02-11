@@ -89,7 +89,6 @@ protected:
   
   const Real _xm, _lattice_friction;
   const Real _burgers_vector_mag;
-  const Real _dislo_max_velocity;
   const Real _dislo_density_initial;
   const Real _dislo_density_factor_CDT;
   const Real _C_multi, _C_trap, _C_m_ann, _C_im_ann;

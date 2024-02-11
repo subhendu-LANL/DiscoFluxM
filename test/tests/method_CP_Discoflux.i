@@ -136,29 +136,6 @@
   [../]
 []
 
-[InterfaceKernels]
-  [./Intf_Avd_DD_EdgePositive]
-    type = ArrayDislocationTransferAtGrainGoundary
-    variable = DD_EdgePositive
-    neighbor_var = DD_EdgePositive
-    dislocation_character = edge
-    dislocation_sign = positive
-    boundary = surface_GB
-    density_critical = 2.0
-    tau_critical = 50
-  [../]
-  [./Intf_Avd_DD_EdgeNegative]
-    type = ArrayDislocationTransferAtGrainGoundary
-    variable = DD_EdgeNegative
-    neighbor_var = DD_EdgeNegative
-    dislocation_character = edge
-    dislocation_sign = negative
-    boundary = surface_GB
-    density_critical = 2.0
-    tau_critical = 50
-  [../]
-[]
-
 [Materials]
   [./AdvCoeff]
     type = GenericConstantArray
@@ -194,7 +171,7 @@
     type = CrystalPlasticityDislocationEdgeScrew
     number_slip_systems = 12
     slip_sys_file_name = input_slip_sys.inp
-    lattice_friction = 50
+    lattice_friction = 200
     Coeff_hardening = 0.55
     dislo_density_initial = 1.0e+05
     slip_increment_tolerance = 2.0e-2
@@ -292,10 +269,14 @@
   l_abs_tol = 1e-7
   l_max_its = 20
 
-  dt = 0.001
   dtmax = 0.002
   dtmin = 0.00000001
   end_time = 1
+  [./TimeStepper]
+    type = ConstantDT
+    dt = 0.001
+    growth_factor = 1.01
+  [../]
 []
 
 [AuxVariables]
