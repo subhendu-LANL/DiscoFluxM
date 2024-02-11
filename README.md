@@ -1,6 +1,5 @@
 DiscoFluxM
 =====
 
-Fork "DiscoFluxM" to create a new MOOSE-based application.
+This is a Dislocation Transport Base Crystal Plasticity Material Model(DiscoFlux) implemented within MOOSE framework(https://mooseframework.inl.gov/index.html)
 
-For more information see: [https://mooseframework.org/getting_started/new_users.html#create-an-app](https://mooseframework.org/getting_started/new_users.html#create-an-app)
