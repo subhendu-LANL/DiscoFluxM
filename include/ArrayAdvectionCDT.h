@@ -4,7 +4,7 @@
 // Subhendu Chakraborty(schakraborty@lanl.gov) 
 // Abigail Hunter(ahunter@lanl.gov)
 // Darby J. Luscher(djl@lanl.gov)
-// UNit system: mm-MPa-s 
+// Unit system: mm-MPa-s 
 /*----------
 © 2023. Triad National Security, LLC. All rights reserved.
 This program was produced under U.S. Government contract 89233218CNA000001 for 

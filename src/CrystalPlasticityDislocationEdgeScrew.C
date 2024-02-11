@@ -4,7 +4,7 @@
 // Subhendu Chakraborty(schakraborty@lanl.gov) 
 // Abigail Hunter(ahunter@lanl.gov)
 // Darby J. Luscher(djl@lanl.gov)
-// UNit system: mm-MPa-s 
+// Unit system: mm-MPa-s 
 /*----------
 © 2023. Triad National Security, LLC. All rights reserved.
 This program was produced under U.S. Government contract 89233218CNA000001 for 
@@ -426,7 +426,9 @@ CrystalPlasticityDislocationEdgeScrew::getDisloVelocity()
 		inner = 1.0 - std::pow((tau_effAbs[i] / slip_r[i] ),q1);
 		deltaG  = deltaG0*( std::pow(inner,q2) );
 		exp_arg = deltaG / (boltz*temp);
-		_dv_dtau[i] = 0.00; 
+		//dtw_dtau = 
+		//dtr_dtau =
+		_dv_dtau[i] = 0.00; // * (dtw_dtau + dtr_dtau);
 		}
 	else
 	  {
