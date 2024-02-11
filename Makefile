@@ -7,11 +7,11 @@
 #
 ###############################################################################
 # Use the MOOSE submodule if it exists and MOOSE_DIR is not set
-MOOSE_SUBMODULE    := $(CURDIR)/moose_02
+MOOSE_SUBMODULE    := $(CURDIR)/moose_ForDiscofluxM/
 ifneq ($(wildcard $(MOOSE_SUBMODULE)/framework/Makefile),)
   MOOSE_DIR        ?= $(MOOSE_SUBMODULE)
 else
-  MOOSE_DIR        ?= $(shell dirname `pwd`)/moose_02
+  MOOSE_DIR        ?= $(shell dirname `pwd`)/moose_ForDiscofluxM/
 endif
 
 # framework

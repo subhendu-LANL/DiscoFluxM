@@ -191,11 +191,11 @@
     rtol = 1.0e-02
   [../]
   [./CP_DiscoFlux]
-    type = CrystalPlasticityDislocationEdgeScrew  #CrystalPlasticityDislocationEdgeScrew
+    type = CrystalPlasticityDislocationEdgeScrew
     number_slip_systems = 12
     slip_sys_file_name = input_slip_sys.inp
     lattice_friction = 50
-    Coeff_hardening = 0.55 #0.5
+    Coeff_hardening = 0.55
     slip_increment_tolerance = 2.0e-2
     DD_EdgePositive = DD_EdgePositive
     DD_EdgeNegative = DD_EdgeNegative
@@ -210,8 +210,8 @@
 [GlobalParams]
     dislo_density_initial = 1.0e+05
     dislo_density_factor_CDT = 1.0e+05
-    C_multi = 8.96e-06 #8.96e-05
-    C_trap = 9.0e-03 #3.0e-03
+    C_multi = 8.96e-06
+    C_trap = 9.0e-03
     C_m_ann = 0.5
     C_im_ann = 0.5
     burgers_vector_mag = 2.52e-07
@@ -307,16 +307,27 @@
     order = CONSTANT
     family = MONOMIAL
   [../]
+  [./shear_stress_00]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+[./back_stress_00]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+[./DD_mobile_00]
+   order = CONSTANT
+   family = MONOMIAL
+[../]
 []
 
 [AuxKernels]
   [./pk2_yy] 
    type = RankTwoAux
    variable = pk2_yy
-   rank_two_tensor = stress # second_piola_kirchhoff_stress
+   rank_two_tensor = stress
    index_j = 1
    index_i = 1
-   #execute_on = timestep_end
   [../]
   [./E_yy]
    type = RankTwoAux
@@ -324,7 +335,24 @@
    rank_two_tensor = total_strain
    index_j = 1
    index_i = 1
-   #execute_on = timestep_end
+  [../]
+[./shear_stress_00]
+   type = MaterialStdVectorAux
+   variable = shear_stress_00
+   property = applied_shear_stress  
+   index = 0
+  [../]
+[./back_stress_00]
+   type = MaterialStdVectorAux
+   variable = back_stress_00
+   property = back_stress
+   index = 0
+  [../]
+[./DD_mobile_00]
+   type = MaterialStdVectorAux
+   variable = DD_mobile_00
+   property = dislocation_immobile
+   index = 0
   [../]
 []
 

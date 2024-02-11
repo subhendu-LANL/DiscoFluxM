@@ -77,8 +77,8 @@ public:
   virtual void computeJacobian() override;
 
   /// Compute residuals at quadrature points
-  virtual RealEigenVector computeQpResidual(Moose::DGResidualType type) = 0; //{return RealEigenVector::Zero(_var.count());}; // type changed .. subhendu
-  virtual RealEigenVector computeQpJacobian(Moose::DGJacobianType type) = 0; //{return RealEigenVector::Zero(_var.count());};
+  virtual RealEigenVector computeQpResidual(Moose::DGResidualType type) = 0;
+  virtual RealEigenVector computeQpJacobian(Moose::DGJacobianType type) = 0;
 
   /**
    * Put necessary evaluations depending on qp but independent on test functions here

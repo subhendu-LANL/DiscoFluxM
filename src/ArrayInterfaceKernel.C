@@ -37,7 +37,7 @@ InterfaceKernelTempl02<T>::InterfaceKernelTempl02(const InputParameters & parame
                                       Moose::VarKindType::VAR_NONLINEAR,
                                       std::is_same<T, Real>::value
                                           ? Moose::VarFieldType::VAR_FIELD_STANDARD
-                                          : Moose::VarFieldType::VAR_FIELD_ARRAY), // added 'VAR_FIELD_ARRAY' ... subhendu
+                                          : Moose::VarFieldType::VAR_FIELD_ARRAY),
     _var(*this->mooseVariable()),
     _normals(_assembly.normals()),
     _u(_is_implicit ? _var.sln() : _var.slnOld()),
@@ -53,7 +53,7 @@ InterfaceKernelTempl02<T>::InterfaceKernelTempl02(const InputParameters & parame
     _grad_phi_neighbor(_assembly.gradPhiFaceNeighbor(_neighbor_var)),
     _test_neighbor(_neighbor_var.phiFaceNeighbor()),
     _grad_test_neighbor(_neighbor_var.gradPhiFaceNeighbor()),
-	_count(_var.count()), // added .. subhendu
+	_count(_var.count()),
 	_work_vector(_count)
 
 {
