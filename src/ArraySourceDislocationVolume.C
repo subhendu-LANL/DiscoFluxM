@@ -62,8 +62,7 @@ ArraySourceDislocationVolume::ArraySourceDislocationVolume(const InputParameters
 	_dislocationsign(getParam<MooseEnum>("dislocation_sign").getEnum<DislocationSign>()), 
 
 	_dislocation_mobile_old(getMaterialProperty<std::vector<Real>>("dislocation_mobile")),
-	_slip_increment(getMaterialProperty<std::vector<Real>>("slip_increment")),
-	_slip_increment_old(getMaterialPropertyOld<std::vector<Real>>("slip_increment")),
+	_slip_rate(getMaterialProperty<std::vector<Real>>("slip_rate")),
 	
 	_dt(_fe_problem.dt())
 	

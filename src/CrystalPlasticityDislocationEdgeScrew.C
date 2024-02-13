@@ -158,7 +158,7 @@ CrystalPlasticityDislocationEdgeScrew::initQpStatefulProperties()
 	_slip_plane_normalboth[_qp][i].zero();
 
     _slip_resistance[_qp][i] = _lattice_friction + _Coeff_hardening*mu*_burgers_vector_mag*std::sqrt(1.0*4*2 * _dislo_density_initial + 0.1*11*4*2*_dislo_density_initial); // approximate
-    _slip_increment[_qp][i] = 0.0;
+    _slip_rate[_qp][i] = 0.0;
 	
 	_dislocation_immobile[_qp][i] = 4.0 * _dislo_density_initial;
 	_dislo_velocity_edge[_qp][i] = 0.00;
@@ -220,10 +220,10 @@ getDisloVelocity();
 
 for (unsigned int i = 0; i < _number_slip_systems; ++i)
   {
-		_slip_increment[_qp][i] = (_DD_EdgePositive[_qp][i] + _DD_EdgeNegative[_qp][i]) * _dislo_density_factor_CDT * _burgers_vector_mag * _dislo_velocity_edge[_qp][i] +
+		_slip_rate[_qp][i] = (_DD_EdgePositive[_qp][i] + _DD_EdgeNegative[_qp][i]) * _dislo_density_factor_CDT * _burgers_vector_mag * _dislo_velocity_edge[_qp][i] +
 								( _DD_ScrewPositive[_qp][i] + _DD_ScrewNegative[_qp][i]) * _dislo_density_factor_CDT * _burgers_vector_mag * _dislo_velocity_screw[_qp][i];
 
-    if (std::abs(_slip_increment[_qp][i]) * _substep_dt > _slip_incr_tol)
+    if (std::abs(_slip_rate[_qp][i]) * _substep_dt > _slip_incr_tol)
     {
 		return false;
     }
@@ -334,9 +334,9 @@ CrystalPlasticityDislocationEdgeScrew::getDDIncrements()
 	_dislocation_mobile_increment[i] = 0.00;
 	_dislocation_immobile_increment[i] = 0.00;
 	
-	if (std::abs(_slip_increment[_qp][i]) > small2) {
-	_dislocation_immobile_increment[i] = (_C_trap/_burgers_vector_mag)*std::pow(_dislocation_mobile[_qp][i],0.5)* std::abs(_slip_increment[_qp][i])
-		- (_C_im_ann*_dislocation_immobile[_qp][i])* std::abs(_slip_increment[_qp][i]);	
+	if (std::abs(_slip_rate[_qp][i]) > small2) {
+	_dislocation_immobile_increment[i] = (_C_trap/_burgers_vector_mag)*std::pow(_dislocation_mobile[_qp][i],0.5)* std::abs(_slip_rate[_qp][i])
+		- (_C_im_ann*_dislocation_immobile[_qp][i])* std::abs(_slip_rate[_qp][i]);	
 	 
 	} 
 	else
@@ -367,7 +367,7 @@ CrystalPlasticityDislocationEdgeScrew::DDCUpdate()
 			_kappa_grad[i](0) = (_DD_EdgePositive_Grad[_qp](i) - _DD_EdgeNegative_Grad[_qp](i))*_dislo_density_factor_CDT;
 			_kappa_grad[i](1) = (_DD_EdgePositive_Grad[_qp](i+_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+_number_slip_systems))*_dislo_density_factor_CDT;
 			_kappa_grad[i](2) = (_DD_EdgePositive_Grad[_qp](i+2*_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+2*_number_slip_systems))*_dislo_density_factor_CDT;
-			_tau_b_local[i] = 0.01 * (( mu * std::pow(_L_bar[i],1))/(2*3.141*(1-nu)))*_burgers_vector_mag * (_kappa_grad[i]*slip_direction_rotated);
+			_tau_b_local[i] = 0.1 * (( mu * std::pow(_L_bar[i],1))/(2*3.141*(1-nu)))*_burgers_vector_mag * (_kappa_grad[i]*slip_direction_rotated);
 		  }
 }
 

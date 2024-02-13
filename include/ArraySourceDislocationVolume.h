@@ -46,8 +46,7 @@ protected:
   const enum class DislocationSign { positive, negative } _dislocationsign;
   
   const MaterialProperty<std::vector<Real>> & _dislocation_mobile_old;
-  const MaterialProperty<std::vector<Real>> & _slip_increment;
-  const MaterialProperty<std::vector<Real>> & _slip_increment_old;
+  const MaterialProperty<std::vector<Real>> & _slip_rate;
   
   Real _dt;
 
