@@ -265,7 +265,7 @@ share/
 
 # Ignore vscode local parameters
 .vscode/*
-
+/test/tests/subhendu/*
 # App Resource file (including modules/)
 /test/moose_test.yaml
 /modules/functional_expansion_tools/functional_expansion_tools.yaml
