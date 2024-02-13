@@ -129,7 +129,7 @@ void
 ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 {
 	 Real temp =0.00;
-	std::vector<std::vector<Real>> M_GB, M_mod_GB, M_mod_GB_Norm, N_GB, N_mod_GB;
+	std::vector<std::vector<Real>> L_GB, M_mod_GB, M_mod_GB_Norm, N_GB, N_mod_GB;
 	std::vector<Real> Sum_M_mod_GB_i, Sum_M_mod_GB_j, MaxValue_i, MaxValue_j;
 	std::vector<int> Max_i, Max_j;
 	RealVectorValue l1, l2, _slip_direction_rotated, _slip_direction_edge_rotated,
@@ -137,7 +137,7 @@ ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 
 	unsigned int _number_slip_systems=_count; 
 	N_GB.resize(_number_slip_systems, std::vector<Real>(_number_slip_systems, 0.00));
-	M_GB.resize(_number_slip_systems, std::vector<Real>(_number_slip_systems, 0.00));
+	L_GB.resize(_number_slip_systems, std::vector<Real>(_number_slip_systems, 0.00));
 	M_mod_GB.resize(_number_slip_systems, std::vector<Real>(_number_slip_systems, 0.00));
 	M_mod_GB_Norm.resize(_number_slip_systems, std::vector<Real>(_number_slip_systems, 0.00));
 	Interface_Adv_Coeff.resize(_number_slip_systems, std::vector<Real>(_number_slip_systems, 0.00));
@@ -164,9 +164,10 @@ ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 	
 		l2 = _slip_plane_normal_rotated_neighbor.cross(-_normals[_qp]);  
 		temp = std::abs((l1 * l2));
+		L_GB[i][j] = std::abs((l1 * l2));
+		N_GB[i][j] =  (_slip_plane_normal_rotated * _slip_plane_normal_rotated_neighbor);
 		temp *= (_slip_direction_rotated * _slip_direction_rotated_neighbor);
-		temp *= (_slip_plane_normal_rotated * _slip_plane_normal_rotated_neighbor);
-		M_mod_GB[i][j] = temp;
+		M_mod_GB[i][j] = L_GB[i][j] * N_GB[i][j] * temp;
 		
 		Sum_M_mod_GB_i[i] += M_mod_GB[i][j];
 		Sum_M_mod_GB_j[j] += M_mod_GB[i][j];
@@ -178,7 +179,7 @@ ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 	{
 		M_mod_GB_Norm[i][j] = M_mod_GB[i][j]/Sum_M_mod_GB_i[i];
 		Interface_Adv_Coeff[i][j] = M_mod_GB[i][j]; 
-		if(Interface_Adv_Coeff[i][j] > max_coeff) 
+		if(Interface_Adv_Coeff[i][j] > max_coeff && N_GB[i][j]>0.00) 
 		{	index_max_coeff = j;
 			max_coeff = Interface_Adv_Coeff[i][j];
 		}
