@@ -249,28 +249,28 @@
     variable = DD_EdgePositive
     dislocation_character = edge
     dislocation_sign = positive
-    boundary = 'left right front back top bottom '
+    boundary = 'left right top bottom '
   [../]
   [./BC_FreeFlow_EdgeNegative]
     type = ArrayOutflowBCCDT
     variable = DD_EdgeNegative
     dislocation_character = edge
     dislocation_sign = negative
-    boundary = 'left right front back top bottom '
+    boundary = 'left right top bottom '
   [../]
   [./BC_FreeFlow_ScrewPositive]
     type = ArrayOutflowBCCDT
     variable = DD_ScrewPositive
     dislocation_character = Screw
     dislocation_sign = positive
-    boundary = 'left right front back top bottom '
+    boundary = 'left right top bottom '
   [../]
   [./BC_FreeFlow_ScrewNegative]
     type = ArrayOutflowBCCDT
     variable = DD_ScrewNegative
     dislocation_character = Screw
     dislocation_sign = negative
-    boundary = 'left right front back top bottom '
+    boundary = 'left right top bottom '
   [../]
 []
 
