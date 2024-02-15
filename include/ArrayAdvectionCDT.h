@@ -61,7 +61,7 @@ protected:
   const enum class DislocationCharacter { edge, screw } _dislocationcharacter;  
   // Dislocation sign
   const enum class DislocationSign { positive, negative } _dislocationsign;
-
+  // data related to slip_systems
   const MaterialProperty<std::vector<RealVectorValue>> & _slip_direction_edge;
   const MaterialProperty<std::vector<RealVectorValue>> & _slip_direction_screw;
   const MaterialProperty<std::vector<RealVectorValue>> & _slip_plane_normalboth;

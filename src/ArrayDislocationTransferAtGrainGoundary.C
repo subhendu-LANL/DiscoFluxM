@@ -197,7 +197,7 @@ ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 	Real density_initial = 1.00;
 	Real density_critical_relative = density_initial + (_density_critical - density_initial) * (Interface_Adv_Coeff[i][index_max_coeff] - 1.0)/(0.5 - 1.0); 
 	if((_u_Old[_qp][i] > density_critical_relative) && (velocity*_normals[_qp] > 0.00) && std::abs(_tau[_qp][i])>_tau_critical) 
-	         _discl_transfer_amount[i] = velocity * _normals[_qp]; 
+	         _discl_transfer_amount[i] = velocity * _normals[_qp]*0.01; 
 	}
 }
 

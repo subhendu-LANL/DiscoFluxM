@@ -159,6 +159,35 @@
   [../]
 []
 
+[BCs]
+  [./BC_Loading]
+    type = FunctionDirichletBC
+    variable = disp_y
+    boundary = 'top bottom '
+    function = '-0.1*y*t'
+  [../]
+
+  [./BC_BottomLeft_X]
+    type = FunctionDirichletBC
+    variable = disp_x
+    boundary = 'bottom'
+    function = 0.0
+  [../]
+   [./BC_BottomLeft_Y]
+    type = FunctionDirichletBC
+    variable = disp_y
+    boundary = 'bottom'
+    function = 0.0
+  [../]
+   [./BC_BottomBack_Z]
+    type = FunctionDirichletBC
+    variable = disp_z
+    boundary = 'bottom'
+    function = 0.0
+  [../]
+
+[]
+
 [Materials]
   [./AdvCoeff]
     type = GenericConstantArray
@@ -194,7 +223,7 @@
     type = CrystalPlasticityDislocationEdgeScrew
     number_slip_systems = 12
     slip_sys_file_name = input_slip_sys.inp
-    lattice_friction = 50
+    lattice_friction = 200
     Coeff_hardening = 0.55
     dislo_density_initial = 1.0e+05
     slip_increment_tolerance = 2.0e-2
@@ -217,63 +246,6 @@
     burgers_vector_mag = 2.52e-07
 []
 
-[BCs]
-  [./BC_Loading]
-    type = FunctionDirichletBC
-    variable = disp_y
-    boundary = 'top bottom '
-    function = '0.1*y*t'
-  [../]
-
-  [./BC_BottomLeft_X]
-    type = FunctionDirichletBC
-    variable = disp_x
-    boundary = 'bottom'
-    function = 0.0
-  [../]
-   [./BC_BottomLeft_Y]
-    type = FunctionDirichletBC
-    variable = disp_y
-    boundary = 'bottom'
-    function = 0.0
-  [../]
-   [./BC_BottomBack_Z]
-    type = FunctionDirichletBC
-    variable = disp_z
-    boundary = 'bottom'
-    function = 0.0
-  [../]
-
-  [./BC_FreeFlow_EdgePositive]
-    type = ArrayOutflowBCCDT
-    variable = DD_EdgePositive
-    dislocation_character = edge
-    dislocation_sign = positive
-    boundary = 'left right top bottom '
-  [../]
-  [./BC_FreeFlow_EdgeNegative]
-    type = ArrayOutflowBCCDT
-    variable = DD_EdgeNegative
-    dislocation_character = edge
-    dislocation_sign = negative
-    boundary = 'left right top bottom '
-  [../]
-  [./BC_FreeFlow_ScrewPositive]
-    type = ArrayOutflowBCCDT
-    variable = DD_ScrewPositive
-    dislocation_character = Screw
-    dislocation_sign = positive
-    boundary = 'left right top bottom '
-  [../]
-  [./BC_FreeFlow_ScrewNegative]
-    type = ArrayOutflowBCCDT
-    variable = DD_ScrewNegative
-    dislocation_character = Screw
-    dislocation_sign = negative
-    boundary = 'left right top bottom '
-  [../]
-[]
-
 [Preconditioning]
   [./smp]
     type = SMP
@@ -292,10 +264,14 @@
   l_abs_tol = 1e-7
   l_max_its = 20
 
-  dt = 0.001
   dtmax = 0.002
   dtmin = 0.00000001
   end_time = 1
+  [./TimeStepper]
+    type = ConstantDT
+    dt = 0.001
+    growth_factor = 1.01
+  [../]
 []
 
 [AuxVariables]

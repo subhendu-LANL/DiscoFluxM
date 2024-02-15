@@ -29,7 +29,7 @@ ArrayAdvectionCDT::validParams()
   params.addRequiredParam<MaterialPropertyName>("advection_coefficient",
                                                 "The name of the advdectivity, "
                                                 "can be scalar, vector, or matrix.");
-  MooseEnum upwinding_type("none full", "full");
+  MooseEnum upwinding_type("none full", "none");
   params.addParam<MooseEnum>("upwinding_type",
                              upwinding_type,
                              "Type of upwinding used.  None: Typically results in overshoots and "
@@ -217,15 +217,12 @@ for (unsigned int i_var = 0; i_var < _count; i_var++)
 
 for (unsigned int i_var = 0; i_var < _count; i_var++)
 {
-  if (std::abs(total_mass_out[i_var]) > 1.0e-20) //only if  velocity is non-zero
-  {
 for (unsigned int n = 0; n < num_nodes; n++)
   {
     if (!_upwind_node[i_var][n])
     {
       work_vector_res(i_var,n) *= total_mass_out[i_var] / total_in[i_var];
     }
-  }
   }
 }
 
