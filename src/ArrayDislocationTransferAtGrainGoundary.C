@@ -74,12 +74,16 @@ ArrayDislocationTransferAtGrainGoundary::ArrayDislocationTransferAtGrainGoundary
 
 RealEigenVector
 ArrayDislocationTransferAtGrainGoundary::computeQpResidual(Moose::DGResidualType type)
-{
-	computeInterfaceAdvCoeff(); 
-
+{  
   RealEigenVector r ; // = 0;
   r.resize(_count);
   r.setZero();
+
+	if(_current_elem->subdomain_id() == _neighbor_elem->subdomain_id())  return r;// to check if there is any boundary inside the same subdomain
+	
+	computeInterfaceAdvCoeff(); 
+
+
   bool DisclTransferNonZero=false;
 
   for (unsigned int i = 0; i < _count; i++) 
@@ -104,11 +108,14 @@ ArrayDislocationTransferAtGrainGoundary::computeQpResidual(Moose::DGResidualType
 RealEigenVector
 ArrayDislocationTransferAtGrainGoundary::computeQpJacobian(Moose::DGJacobianType type)
 {
-	computeInterfaceAdvCoeff();
-	
-  RealEigenVector jac ;
+   RealEigenVector jac ;
   jac.resize(_count);
   jac.setZero();
+  if(_current_elem->subdomain_id() == _neighbor_elem->subdomain_id())  return jac;// to check if there is any boundary inside the same subdomain
+	
+	computeInterfaceAdvCoeff();
+	
+
 
   switch (type)
   {
