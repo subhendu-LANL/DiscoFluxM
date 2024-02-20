@@ -1,5 +1,19 @@
-DiscoFluxM
+Dislocation Transport based Crystal Plasticity material model(DiscoFluxM)
 =====
+
+# Features
+
+
+# Installation instruction
+
+
+# Instruction to run simulation
+
+# Necessary parts of the model
+
+# Known Issues
+
+# Featured under development
 
 This is a Dislocation Transport-based Crystal Plasticity Material Model(DiscoFlux), implemented within MOOSE framework(https://mooseframework.inl.gov/index.html).
 
