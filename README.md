@@ -13,19 +13,28 @@ This is a Dislocation Transport-based Crystal Plasticity Material Model(DiscoFlu
 
 # Installation instruction
 1. Download/clone the modified version of moose from LANL-Gitlab.
-2. Set-up the conda and required libraries according to the instruction given in [moose website](https://mooseframework.inl.gov/getting_started/installation/conda.html)
+2. Set-up the conda and required libraries according to the instruction given in [moose website](https://mooseframework.inl.gov/getting_started/installation/conda.html){target="blank"}
+3. Download/clone this repository. 
+4. 
+5. 
+
 
 # Instruction to run simulation
+1. Generate the polycrystal mesh for your problem of interest.
+2. Make sure the the mesh contains each grain as a seprate element-set. 
+3. All boundary-sets should be there to impose any boundary_condition as well as interface_condition(for dislocation transfer across GB).
+4. 
 
 # Things to keep in mind
-1. The gradient based terms in the computation of brack_stress are sensitive to physical dimension of the domain and mesh size. This may cause convergence issue, if numerical parameters are not set properly. 
+1. The gradient based terms in the computation of back_stress are sensitive to physical dimension of the domain and mesh size. This may cause convergence issue, if numerical parameters are not set properly. Even one highly shewed element can cause convergence issue. 
 2. It's worthwhile to do some experiment to find proper preconditioner when using Jacobian Free(kind of) solvers (e.g., PJFNK).
-
+3. 
 
 # Known Issues
+1.
 
-# Featured under development
-
+# Features under development
+1. 
 
 
 
