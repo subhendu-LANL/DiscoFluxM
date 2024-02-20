@@ -6,7 +6,7 @@
 []
 
 [Outputs]
-    file_base = Data_CP_DiscofluxGB
+    file_base = Data2_CP_DiscofluxGB
     csv = true
     exodus = true
 []

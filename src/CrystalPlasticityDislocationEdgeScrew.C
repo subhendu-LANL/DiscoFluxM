@@ -378,6 +378,8 @@ CrystalPlasticityDislocationEdgeScrew::DDCUpdate()
 			_kappa_grad[i](1) = (_DD_EdgePositive_Grad[_qp](i+_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+_number_slip_systems))*_dislo_density_factor_CDT;
 			_kappa_grad[i](2) = (_DD_EdgePositive_Grad[_qp](i+2*_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+2*_number_slip_systems))*_dislo_density_factor_CDT;
 			_tau_b_local[i] = 0.1 * (( mu * std::pow(_L_bar[i],1))/(2*3.141*(1-nu)))*_burgers_vector_mag * (_kappa_grad[i]*slip_direction_rotated);
+			Stress_internal += _tau_b_local[i]*(libMesh::outer_product(slip_direction_rotated, slip_plane_normal_rotated) + libMesh::outer_product(slip_plane_normal_rotated, slip_direction_rotated));
+
 		  }
 }
 

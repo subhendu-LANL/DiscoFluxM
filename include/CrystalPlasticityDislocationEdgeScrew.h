@@ -162,4 +162,5 @@ protected:
 
   // For DDCUpdate
   RealVectorValue slip_direction_rotated, slip_plane_normal_rotated;
+  RankTwoTensor Stress_internal;
 };
