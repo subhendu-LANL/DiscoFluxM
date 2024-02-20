@@ -12,7 +12,7 @@ This is a Dislocation Transport-based Crystal Plasticity Material Model(DiscoFlu
 
 
 # Installation instruction
-1. Download/clone the modified version of moose from LANL-Gitlab.
+1. Download/clone the modified version of moose from LANL-Gitlab [link].
 2. Set-up the conda and required libraries according to the instruction given in moose website: https://mooseframework.inl.gov/getting_started/installation/conda.html
 3. Download/clone this repository. 
 4. Go inside the repository: cd ./DiscoFluxM
