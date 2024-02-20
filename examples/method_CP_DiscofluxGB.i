@@ -189,14 +189,14 @@
   [../]
   [./compute_stress]
     type = StressUpdateCP
-    crystal_plasticity_models = 'CP_DiscoFlux'
+    discoflux_model_name = 'CP_DiscoFlux'
     rtol = 1.0e-02
   [../]
   [./CP_DiscoFlux]
     type = CrystalPlasticityDislocationEdgeScrew
     number_slip_systems = 12
     slip_sys_file_name = input_slip_sys.inp
-    lattice_friction = 200
+    lattice_friction = 35
     Coeff_hardening = 0.55
     dislo_density_initial = 1.0e+05
     slip_increment_tolerance = 2.0e-2
@@ -503,4 +503,223 @@
   [../]
 []
 
+[AuxVariables]
+  [./shear_stress_06]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./back_stress_06]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_mobile_06]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+[]
+
+[AuxKernels]
+[./shear_stress_06]
+   type = MaterialStdVectorAux
+   variable = shear_stress_06
+   property = applied_shear_stress  
+   index = 6
+  [../]
+[./back_stress_06]
+   type = MaterialStdVectorAux
+   variable = back_stress_06
+   property = back_stress
+   index = 6
+  [../]
+[./DD_mobile_06]
+   type = MaterialStdVectorAux
+   variable = DD_mobile_06
+   property = dislocation_immobile
+   index = 6
+  [../]
+[]
+
+
+[AuxVariables]
+  [./shear_stress_07]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./back_stress_07]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_mobile_07]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+[]
+
+[AuxKernels]
+[./shear_stress_07]
+   type = MaterialStdVectorAux
+   variable = shear_stress_07
+   property = applied_shear_stress  
+   index = 7
+  [../]
+[./back_stress_07]
+   type = MaterialStdVectorAux
+   variable = back_stress_07
+   property = back_stress
+   index = 7
+  [../]
+[./DD_mobile_07]
+   type = MaterialStdVectorAux
+   variable = DD_mobile_07
+   property = dislocation_immobile
+   index = 7
+  [../]
+[]
+
+
+
+[AuxVariables]
+  [./shear_stress_08]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./back_stress_08]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_mobile_08]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+[]
+
+[AuxKernels]
+[./shear_stress_08]
+   type = MaterialStdVectorAux
+   variable = shear_stress_08
+   property = applied_shear_stress  
+   index = 8
+  [../]
+[./back_stress_08]
+   type = MaterialStdVectorAux
+   variable = back_stress_08
+   property = back_stress
+   index = 8
+  [../]
+[./DD_mobile_08]
+   type = MaterialStdVectorAux
+   variable = DD_mobile_08
+   property = dislocation_immobile
+   index = 8
+  [../]
+[]
+
+
+[AuxVariables]
+  [./shear_stress_09]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./back_stress_09]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_mobile_09]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+[]
+
+[AuxKernels]
+[./shear_stress_09]
+   type = MaterialStdVectorAux
+   variable = shear_stress_09
+   property = applied_shear_stress  
+   index = 9
+  [../]
+[./back_stress_09]
+   type = MaterialStdVectorAux
+   variable = back_stress_09
+   property = back_stress
+   index = 9
+  [../]
+[./DD_mobile_09]
+   type = MaterialStdVectorAux
+   variable = DD_mobile_09
+   property = dislocation_immobile
+   index = 9
+  [../]
+[]
+
+[AuxVariables]
+  [./shear_stress_10]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./back_stress_10]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_mobile_10]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+[]
+
+[AuxKernels]
+[./shear_stress_10]
+   type = MaterialStdVectorAux
+   variable = shear_stress_10
+   property = applied_shear_stress  
+   index = 10
+  [../]
+[./back_stress_10]
+   type = MaterialStdVectorAux
+   variable = back_stress_10
+   property = back_stress
+   index = 10
+  [../]
+[./DD_mobile_10]
+   type = MaterialStdVectorAux
+   variable = DD_mobile_10
+   property = dislocation_immobile
+   index = 10
+  [../]
+[]
+
+[AuxVariables]
+  [./shear_stress_11]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./back_stress_11]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_mobile_11]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+[]
+
+[AuxKernels]
+[./shear_stress_11]
+   type = MaterialStdVectorAux
+   variable = shear_stress_11
+   property = applied_shear_stress  
+   index = 11
+  [../]
+[./back_stress_11]
+   type = MaterialStdVectorAux
+   variable = back_stress_11
+   property = back_stress
+   index = 11
+  [../]
+[./DD_mobile_11]
+   type = MaterialStdVectorAux
+   variable = DD_mobile_11
+   property = dislocation_immobile
+   index = 11
+  [../]
+[]
 
