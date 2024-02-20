@@ -21,12 +21,12 @@ permit others to do so.
 
 #include "ArrayKernel.h"
 
-class ArrayAdvectionCDT : public ArrayKernel
+class ArrayTransportDislocationCP : public ArrayKernel
 {
 public:
   static InputParameters validParams();
 
-  ArrayAdvectionCDT(const InputParameters & parameters);
+  ArrayTransportDislocationCP(const InputParameters & parameters);
 
 protected:
   virtual void computeQpResidual(RealEigenVector & residual) override;
@@ -52,10 +52,11 @@ protected:
   const ArrayVariableValue & _u_nodal;
   std::vector<std::vector<bool>> _upwind_node;
   std::vector<std::vector<Real>> _dtotal_mass_out;
+  unsigned int jvar_num02;
+  
+  void stabilizedScheme(JacRes res_or_jac);
   RealEigenVector work_vector, work_vector02;
   RealEigenMatrix work_matrix;
-  void fullUpwind(JacRes res_or_jac);
-  unsigned int jvar_num02;
   
   // Dislocation character
   const enum class DislocationCharacter { edge, screw } _dislocationcharacter;  

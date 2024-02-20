@@ -1,11 +1,12 @@
 [Mesh]
  [./MeshFile]
   type = FileMeshGenerator
-  file = 'Mesh_Bi-Crystal.e'
+  file = 'Mesh.e'
  [../]
 []
 
 [Outputs]
+    file_base = Data_CP_DiscofluxGB
     csv = true
     exodus = true
 []
@@ -62,17 +63,10 @@
   [./dot_DD_EdgePositive]
     type = ArrayTimeDerivative  
     variable = DD_EdgePositive
-    time_derivative_coefficient = AdvCoeff
+    time_derivative_coefficient = ArrayCoeff
   [../]
   [./Advection_DD_EdgePositive]
-    type = ArrayAdvectionCDT  
-    variable = DD_EdgePositive
-    dislocation_character = edge
-    dislocation_sign = positive
-    advection_coefficient = AdvCoeff
-  [../]
-  [./Source_DD_EdgePositive]
-    type = ArraySourceDislocationVolume  
+    type = ArrayTransportDislocationCP  
     variable = DD_EdgePositive
     dislocation_character = edge
     dislocation_sign = positive
@@ -81,17 +75,10 @@
   [./dot_DD_EdgeNegative]
     type = ArrayTimeDerivative  
     variable = DD_EdgeNegative
-    time_derivative_coefficient = AdvCoeff
+    time_derivative_coefficient = ArrayCoeff
   [../]
   [./Advection_DD_EdgeNegative]
-    type = ArrayAdvectionCDT
-    variable = DD_EdgeNegative
-    dislocation_character = edge
-    dislocation_sign = negative
-    advection_coefficient = AdvCoeff
-  [../]
-  [./Source_DD_EdgeNegative]
-    type = ArraySourceDislocationVolume  
+    type = ArrayTransportDislocationCP
     variable = DD_EdgeNegative
     dislocation_character = edge
     dislocation_sign = negative
@@ -100,39 +87,13 @@
   [./dot_DD_ScrewPositive]
     type = ArrayTimeDerivative  
     variable = DD_ScrewPositive
-    time_derivative_coefficient = AdvCoeff
-  [../]
-  [./Advection_DD_ScrewPositive]
-    type = ArrayAdvectionCDT  
-    variable = DD_ScrewPositive
-    dislocation_character = screw
-    dislocation_sign = positive
-    advection_coefficient = AdvCoeff
-  [../]
-  [./Source_DD_ScrewPositive]
-    type = ArraySourceDislocationVolume  
-    variable = DD_ScrewPositive
-    dislocation_character = screw
-    dislocation_sign = positive
+    time_derivative_coefficient = ArrayCoeff
   [../]
   
   [./dot_DD_ScrewNegative]
     type = ArrayTimeDerivative  
     variable = DD_ScrewNegative
-    time_derivative_coefficient = AdvCoeff
-  [../]
-  [./Advection_DD_ScrewNegative]
-    type = ArrayAdvectionCDT
-    variable = DD_ScrewNegative
-    dislocation_character = screw
-    dislocation_sign = negative
-    advection_coefficient = AdvCoeff
-  [../]
-  [./Source_DD_ScrewNegative]
-    type = ArraySourceDislocationVolume  
-    variable = DD_ScrewNegative
-    dislocation_character = screw
-    dislocation_sign = negative
+    time_derivative_coefficient = ArrayCoeff
   [../]
 []
 
@@ -189,9 +150,9 @@
 []
 
 [Materials]
-  [./AdvCoeff]
+  [./ArrayCoeff]
     type = GenericConstantArray
-    prop_name = 'AdvCoeff'
+    prop_name = 'ArrayCoeff'
     prop_value = '1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0'
   []
 []
@@ -215,7 +176,7 @@
     read_prop_user_object = prop_read
   [../]
   [./compute_stress]
-    type = ComputeMultipleCrystalPlasticityStress
+    type = StressUpdateCP
     crystal_plasticity_models = 'CP_DiscoFlux'
     rtol = 1.0e-02
   [../]

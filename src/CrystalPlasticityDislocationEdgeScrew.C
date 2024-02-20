@@ -37,9 +37,9 @@ registerMooseObject("TensorMechanicsApp", CrystalPlasticityDislocationEdgeScrew)
 InputParameters
 CrystalPlasticityDislocationEdgeScrew::validParams()
 {
-  InputParameters params = CrystalPlasticityStressUpdateBase::validParams();
+  InputParameters params = StressUpdateCPBase::validParams();
   
-  params.addClassDescription("Calculates the updated stress based on DiscoFlux crystal plasticity material model.");
+  params.addClassDescription("Calculates the plastic slip based on DiscoFlux crystal plasticity material model.");
   
   params.addParam<Real>("lattice_friction", 210, "initial lattice friction strength of the material in MPa");  
   params.addParam<Real>("burgers_vector_mag",1.0e-07,"Magnitude of the Burgers vector in mm");
@@ -51,6 +51,11 @@ CrystalPlasticityDislocationEdgeScrew::validParams()
   params.addParam<Real>("C_m_ann", 0.51, "parameter for dislocation mobile annihilation");
   params.addParam<Real>("C_im_ann", 0.51, "parameter for dislocation immobile annihilation");
   params.addParam<Real>("Coeff_hardening", 0.5, "parameter to control the material hardening");
+
+  params.addParam<Real>("q1", 0.1, "material parameter");
+  params.addParam<Real>("q2", 1.9, "material parameter");
+  params.addParam<Real>("c1", 2.0, "material parameter");
+  params.addParam<Real>("temp", 300, "Temperature(K)");
   
   params.addCoupledVar("DD_EdgePositive", 1.0e+5, "Coupled dislocation density, EdgePositive");
   params.addCoupledVar("DD_EdgeNegative", 1.0e+5, "Coupled dislocation density, EdgeNegative");
@@ -62,7 +67,7 @@ CrystalPlasticityDislocationEdgeScrew::validParams()
 
 CrystalPlasticityDislocationEdgeScrew::CrystalPlasticityDislocationEdgeScrew(
     const InputParameters & parameters)
-  : CrystalPlasticityStressUpdateBase(parameters),
+  : StressUpdateCPBase(parameters),
 	_lattice_friction(getParam<Real>("lattice_friction")),
 	
 	_burgers_vector_mag(getParam<Real>("burgers_vector_mag")),
@@ -73,6 +78,11 @@ CrystalPlasticityDislocationEdgeScrew::CrystalPlasticityDislocationEdgeScrew(
 	_C_m_ann(getParam<Real>("C_m_ann")),
 	_C_im_ann(getParam<Real>("C_im_ann")),
 	_Coeff_hardening(getParam<Real>("Coeff_hardening")),
+
+	_q1(getParam<Real>("q1")),
+	_q2(getParam<Real>("q2")),
+	_c1(getParam<Real>("c1")),
+	_temp(getParam<Real>("temp")),
 	
 	//_Rho_EdgePositive_01(coupledValue("Rho_EdgePositive_01")),
 	_DD_EdgePositive(coupledArrayValue("DD_EdgePositive")), 
@@ -88,7 +98,6 @@ CrystalPlasticityDislocationEdgeScrew::CrystalPlasticityDislocationEdgeScrew(
 	_slip_direction_edge(declareProperty<std::vector<RealVectorValue>>("slip_direction_edge")),
 	_slip_direction_screw(declareProperty<std::vector<RealVectorValue>>("slip_direction_screw")),
 	_slip_plane_normalboth(declareProperty<std::vector<RealVectorValue>>("slip_plane_normalboth")),
-	_crysrot(getMaterialPropertyOld<RankTwoTensor>(_base_name + "crysrot")),
 	
 	_dislocation_immobile(declareProperty<std::vector<Real>>(_base_name + "dislocation_immobile")),
 	_dislocation_immobile_old(getMaterialPropertyOld<std::vector<Real>>(_base_name + "dislocation_immobile")),
@@ -138,7 +147,7 @@ CrystalPlasticityDislocationEdgeScrew::CrystalPlasticityDislocationEdgeScrew(
 void
 CrystalPlasticityDislocationEdgeScrew::initQpStatefulProperties()
 {
-  CrystalPlasticityStressUpdateBase::initQpStatefulProperties();
+  StressUpdateCPBase::initQpStatefulProperties();
     
   _slip_direction_edge[_qp].resize(_number_slip_systems);
   _slip_direction_screw[_qp].resize(_number_slip_systems);
@@ -198,7 +207,8 @@ CrystalPlasticityDislocationEdgeScrew::setInitialConstitutiveVariableValues()
   
   for (unsigned int i = 0; i < _number_slip_systems; ++i)
   {
-  _previous_substep_dislocation_mobile[i] = (_DD_EdgePositive[_qp][i] + _DD_EdgeNegative[_qp][i] + _DD_ScrewPositive[_qp][i] + _DD_ScrewNegative[_qp][i]) * _dislo_density_factor_CDT;
+	_dislocation_mobile[_qp][i] = (_DD_EdgePositive[_qp][i] + _DD_EdgeNegative[_qp][i] + _DD_ScrewPositive[_qp][i] + _DD_ScrewNegative[_qp][i]) * _dislo_density_factor_CDT;
+  _previous_substep_dislocation_mobile[i] = _dislocation_mobile[_qp][i] ; 
   }
 	_dislocation_immobile[_qp] = _dislocation_immobile_old[_qp];
     _previous_substep_dislocation_immobile = _dislocation_immobile_old[_qp];
@@ -335,7 +345,7 @@ CrystalPlasticityDislocationEdgeScrew::getDDIncrements()
 	_dislocation_immobile_increment[i] = 0.00;
 	
 	if (std::abs(_slip_rate[_qp][i]) > small2) {
-	_dislocation_immobile_increment[i] = (_C_trap/_burgers_vector_mag)*std::pow(_dislocation_mobile[_qp][i],0.5)* std::abs(_slip_rate[_qp][i])
+	_dislocation_immobile_increment[i] = (_C_trap/_burgers_vector_mag)*std::pow(_dislocation_immobile[_qp][i],0.5)* std::abs(_slip_rate[_qp][i])
 		- (_C_im_ann*_dislocation_immobile[_qp][i])* std::abs(_slip_rate[_qp][i]);	
 	 
 	} 
@@ -394,41 +404,46 @@ CrystalPlasticityDislocationEdgeScrew::getDisloVelocity()
 	   tau_effAbs[i] = std::abs(tau_eff[i]);
 	   tau_effSign[i] = std::copysign(1.0, tau_eff[i]);
    }
-  for (unsigned int i = 0; i < _number_slip_systems; ++i)
-  { 
-	  if (tau_effAbs[i]>small2)
-	  {
-		  xi0[i] = B0*vcrit / (2*_burgers_vector_mag*tau_effAbs[i]);
-		  vel_run[i] = vcrit*(std::pow((std::pow(xi0[i],2)+1),0.5) - xi0[i]);
-	  }
-	  else
-	  vel_run[i] = 0.00;
-  }
+
    deltaG0 = g0*mu*std::pow(_burgers_vector_mag,3)*1.0e-3;
   for (unsigned int i = 0; i < _number_slip_systems; ++i)
   {	   
-	  inner = 1.0 - std::pow((tau_effAbs[i] / slip_r[i] ),q1);
+	  inner = 1.0 - std::pow((tau_effAbs[i] / slip_r[i] ),_q1);
 	  if (inner > 0.00)
 	  {
-		  deltaG  = deltaG0*( std::pow(inner,q2) );
-		  exp_arg = deltaG / (boltz*temp);
-			t_wait[i] = (exp(exp_arg) - 1.0) / omega0;
+		  deltaG  = deltaG0*( std::pow(inner,_q2) );
+		  exp_arg = deltaG / (boltz*_temp);
+		  t_wait[i] = (exp(exp_arg) - 1.0) / omega0;
+		  //if (tau_effAbs[i]>0.00) t_wait[i] = std::pow((tau_effAbs[i] / _slip_resistance[_qp][i]),_q1) * (_L_bar[i]);
 	  }
 	  else
 		 t_wait[i] = 0.00;
   }
+
+  for (unsigned int i = 0; i < _number_slip_systems; ++i)
+  { 
+	xi0[i] = B0*vcrit / (2*_burgers_vector_mag*tau_eff[i]);
+	vel_run[i] = vcrit*(std::pow((std::pow(xi0[i],2)+1),0.5) - xi0[i]);
+  }
+
   for (unsigned int i = 0; i < _number_slip_systems; ++i)
   {
 	if (vel_run[i] > small2)
 	   {  
 		t_run[i] = _L_bar[i] / vel_run[i];
-		_dislo_velocity_edge[_qp][i] = tau_effSign[i]*_L_bar[i]/ (t_wait[i] + t_run[i]);
-		inner = 1.0 - std::pow((tau_effAbs[i] / slip_r[i] ),q1);
-		deltaG  = deltaG0*( std::pow(inner,q2) );
-		exp_arg = deltaG / (boltz*temp);
-		//dtw_dtau = 
-		//dtr_dtau =
-		_dv_dtau[i] = 0.00; // * (dtw_dtau + dtr_dtau);
+		_dislo_velocity_edge[_qp][i] = tau_effSign[i]*_L_bar[i] / (t_wait[i] + t_run[i]);
+		_dv_dtau[i] = 0.00; // simplest one. Works but slow convergence
+
+		inner = 1.0 - std::pow((tau_effAbs[i] / slip_r[i] ),_q1);
+		deltaG  = deltaG0*( std::pow(inner,_q2) );
+		exp_arg = deltaG / (boltz*_temp);
+		dtw_dtau = (-1)*_q1*_q2*deltaG0/(omega0*boltz*_temp) * exp(exp_arg) * ( std::pow(inner,_q2-1) ) * std::pow((tau_effAbs[i] / slip_r[i] ),_q1-1) *(tau_effSign[i]/slip_r[i]);
+		dtr_dtau = (_L_bar[i]*B0/_burgers_vector_mag)*(tau_effSign[i]/std::pow(tau_effAbs[i],2));
+		_dv_dtau[i] = 0.00; //-1*_L_bar[i]*std::pow((t_wait[i] + t_run[i]),-2) * (dtw_dtau + dtr_dtau);
+
+	    _dislo_velocity_edge[_qp][i] = std::pow((tau_effAbs[i] / slip_r[i]),1.0/_q1) * tau_effSign[i]; // signed dislocation velocity
+	    _dv_dtau[i] = (1.0/_q1)*std::pow((tau_effAbs[i] / slip_r[i]),(1.0/_q1 - 1))*(tau_effSign[i]/slip_r[i]) * tau_effSign[i];
+	
 		}
 	else
 	  {

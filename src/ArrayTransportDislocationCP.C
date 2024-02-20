@@ -17,24 +17,19 @@ irrevocable worldwide license in this material to reproduce, prepare. derivative
 distribute copies to the public, perform publicly and display publicly, and to 
 permit others to do so.
 ------------*/
-#include "ArrayAdvectionCDT.h"
+#include "ArrayTransportDislocationCP.h"
 
-registerMooseObject("TensorMechanicsApp", ArrayAdvectionCDT);
+registerMooseObject("TensorMechanicsApp", ArrayTransportDislocationCP);
 
 InputParameters
-ArrayAdvectionCDT::validParams()
+ArrayTransportDislocationCP::validParams()
 {
   InputParameters params = ArrayKernel::validParams();
   params.addClassDescription("Continuum transport of dislocations(array variable) is modeled using advection model.");
-  params.addRequiredParam<MaterialPropertyName>("advection_coefficient",
-                                                "The name of the advdectivity, "
-                                                "can be scalar, vector, or matrix.");
   MooseEnum upwinding_type("none full", "none");
   params.addParam<MooseEnum>("upwinding_type",
                              upwinding_type,
-                             "Type of upwinding used.  None: Typically results in overshoots and "
-                             "undershoots, but numerical diffusion is minimized.  Full: Overshoots "
-                             "and undershoots are avoided, but numerical diffusion is large");
+                             "Stabilization method used for the advection term");
   MooseEnum dislocation_character("edge screw");
   params.addRequiredParam<MooseEnum>("dislocation_character", dislocation_character, "Character of dislocation");
   MooseEnum dislocation_sign("positive negative");
@@ -45,7 +40,7 @@ ArrayAdvectionCDT::validParams()
   return params;
 }
 
-ArrayAdvectionCDT::ArrayAdvectionCDT(const InputParameters & parameters)
+ArrayTransportDislocationCP::ArrayTransportDislocationCP(const InputParameters & parameters)
   : ArrayKernel(parameters),
 	_dislo_velocity_CP_edge(getMaterialProperty<std::vector<Real>>("dislo_velocity_edge")),
 	_dislo_velocity_CP_screw(getMaterialProperty<std::vector<Real>>("dislo_velocity_screw")),
@@ -68,7 +63,7 @@ ArrayAdvectionCDT::ArrayAdvectionCDT(const InputParameters & parameters)
 
 
 RealEigenVector
-ArrayAdvectionCDT::negativeVelocityGradTestQp()
+ArrayTransportDislocationCP::negativeVelocityGradTestQp()
 {    
 	RealVectorValue _slip_direction_rotated;
   _Dislo_Velocity.resize(_var.count(),LIBMESH_DIM);
@@ -92,13 +87,13 @@ ArrayAdvectionCDT::negativeVelocityGradTestQp()
 }
 
 void
-ArrayAdvectionCDT::computeQpResidual(RealEigenVector & residual)
+ArrayTransportDislocationCP::computeQpResidual(RealEigenVector & residual)
 {
   residual = (_u[_qp].asDiagonal() * negativeVelocityGradTestQp());
 }
 
 RealEigenVector
-ArrayAdvectionCDT::computeQpJacobian()
+ArrayTransportDislocationCP::computeQpJacobian()
 {	
   RealEigenVector jac ;
   jac.resize(_count);
@@ -110,14 +105,14 @@ ArrayAdvectionCDT::computeQpJacobian()
 }
 
 RealEigenMatrix
-ArrayAdvectionCDT::computeQpOffDiagJacobian(const MooseVariableFEBase & jvar)
+ArrayTransportDislocationCP::computeQpOffDiagJacobian(const MooseVariableFEBase & jvar)
 {
     return ArrayKernel::computeQpOffDiagJacobian(jvar);
 }
 
 
 void
-ArrayAdvectionCDT::computeResidual()
+ArrayTransportDislocationCP::computeResidual()
 {
   switch (_upwinding)
   {
@@ -125,13 +120,13 @@ ArrayAdvectionCDT::computeResidual()
       ArrayKernel::computeResidual();
       break;
     case UpwindingType::full:
-      fullUpwind(JacRes::CALCULATE_RESIDUAL);
+      stabilizedScheme(JacRes::CALCULATE_RESIDUAL);
       break;
   }
 }
 
 void
-ArrayAdvectionCDT::computeOffDiagJacobian(const unsigned int jvar_num)
+ArrayTransportDislocationCP::computeOffDiagJacobian(const unsigned int jvar_num)
 {
   switch (_upwinding)
   {
@@ -140,13 +135,13 @@ ArrayAdvectionCDT::computeOffDiagJacobian(const unsigned int jvar_num)
       break;
     case UpwindingType::full:
       jvar_num02 = jvar_num;
-      fullUpwind(JacRes::CALCULATE_JACOBIAN);
+      stabilizedScheme(JacRes::CALCULATE_JACOBIAN);
       break;
   }
 }
 
 void
-ArrayAdvectionCDT::computeJacobian() // not needed, will be removed
+ArrayTransportDislocationCP::computeJacobian() // not needed, will be removed
 {
   switch (_upwinding)
   {
@@ -161,45 +156,57 @@ ArrayAdvectionCDT::computeJacobian() // not needed, will be removed
 
 // Stabilization of the advection kernel 
 void
-ArrayAdvectionCDT::fullUpwind(JacRes res_or_jac)
+ArrayTransportDislocationCP::stabilizedScheme(JacRes res_or_jac)
 {
-
   const unsigned int num_nodes = _test.size();
 
   prepareVectorTag(_assembly, _var.number());
 
   if (res_or_jac == JacRes::CALCULATE_JACOBIAN)
-    prepareMatrixTag(_assembly, _var.number(), _var.number());
+    prepareMatrixTag(_assembly, _var.number(), jvar_num02);
+
+
+  std::vector<Real> total_mass_out;
+  std::vector<Real> total_in;
+  std::vector<std::vector<bool>> _upwind_node;
+  std::vector<std::vector<Real>> _dtotal_mass_out;
 
   _upwind_node.resize(_count,std::vector<bool>(num_nodes));
+  _dtotal_mass_out.resize(_count,std::vector<Real>(num_nodes));
   RealEigenMatrix work_vector_res;
   work_vector_res.resize(_count,num_nodes); work_vector_res.setZero();
   work_vector.setZero(_count);
   RealEigenVector SpeedQp(_count); SpeedQp.setZero();
   RealEigenVector SpeedQpJac(_count); SpeedQpJac.setZero();
-  
 
 for (_i = 0; _i < num_nodes; _i++)
   {
 
    for (_qp = 0; _qp < _qrule->n_points(); _qp++)
   {
+    initQpResidual();
       SpeedQp =negativeVelocityGradTestQp(); 
+      mooseAssert(SpeedQp.size() == _count,
+                  "Size of local residual is not equal to the number of array variable compoments");
+      
       for (unsigned int i_var=0; i_var<_count; i_var++)
+      {
       work_vector_res(i_var,_i) += _JxW[_qp] * _coord[_qp] * SpeedQp[i_var];
+      if(_u[_qp][i_var] <= 0.00) work_vector_res(i_var,_i) = 0.00;
+      }
   }
 
   for (unsigned int i_var=0; i_var<_count; i_var++)
   _upwind_node[i_var][_i] = (work_vector_res(i_var,_i) >= 0.0);
   }
 
-  std::vector<Real> total_mass_out;
-  std::vector<Real> total_in;
+
   total_mass_out.assign(_count, 0.0);
   total_in.assign(_count, 0.0);
 
   if (res_or_jac == JacRes::CALCULATE_JACOBIAN)
     for (unsigned int i_var=0; i_var<_count; i_var++)
+    _dtotal_mass_out[i_var].assign(num_nodes, 0.0);
 
 for (unsigned int i_var = 0; i_var < _count; i_var++)
 {
@@ -208,16 +215,16 @@ for (unsigned int i_var = 0; i_var < _count; i_var++)
     if (_upwind_node[i_var][n])
     {
       work_vector_res(i_var,n) *= _u_nodal[n][i_var];
-      total_mass_out[i_var] += work_vector_res(i_var,n);
+      total_mass_out[i_var] += work_vector_res(i_var,n); 
     }
-    else 
-      total_in[i_var] -= work_vector_res(i_var,n);
+    else                   
+      total_in[i_var] -= work_vector_res(i_var,n); 
   }
 }
 
 for (unsigned int i_var = 0; i_var < _count; i_var++)
 {
-for (unsigned int n = 0; n < num_nodes; n++)
+  for (unsigned int n = 0; n < num_nodes; n++)
   {
     if (!_upwind_node[i_var][n])
     {
@@ -232,19 +239,18 @@ for (unsigned int n = 0; n < num_nodes; n++)
     {
       work_vector.setZero(_count);
       work_vector02.setZero(_count);
-
     for (unsigned int i_var=0; i_var<_count; i_var++)
       work_vector(i_var) = work_vector_res(i_var,_i);
     _assembly.saveLocalArrayResidual(_local_re, _i, _test.size(), work_vector);
 
     }
   accumulateTaggedLocalResidual();
+
   }
   
   if (res_or_jac == JacRes::CALCULATE_JACOBIAN)
   {
-  ArrayKernel::computeOffDiagJacobian(jvar_num02);
+  //ArrayKernel::computeOffDiagJacobian(jvar_num); return;
   }
 
 }
-

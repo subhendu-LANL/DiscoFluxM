@@ -21,7 +21,7 @@ permit others to do so.
 #include "ArrayDislocationTransferAtGrainGoundary.h"
 
 
-#include "CrystalPlasticityStressUpdateBase.h"
+#include "StressUpdateCPBase.h"
 #include "CrystalPlasticityDislocationEdgeScrew.h"
 
 registerMooseObject("TensorMechanicsApp", ArrayDislocationTransferAtGrainGoundary);
@@ -30,10 +30,10 @@ InputParameters
 ArrayDislocationTransferAtGrainGoundary::validParams()
 {
   InputParameters params = ArrayInterfaceKernel::validParams();
-  params.addClassDescription("Transfers dislocation density as flux across the grain boundary of appropriate index according to DiscoFlux model.");
+  params.addClassDescription("Transfers dislocation density as flux across the grain boundary.");
 
   params.addParam<Real>("density_critical", 1.0,"Critical density beyond which there will be dislocation transfer across Grain Boundary"); 
-  params.addParam<Real>("tau_critical", 0.0,"Critical density beyond which there will be dislocation transfer across Grain Boundary");   
+  params.addParam<Real>("tau_critical", 0.0,"Critical resolved shear stres beyond which there will be dislocation transfer across Grain Boundary");   
   MooseEnum dislocation_character("edge screw", "edge");
   params.addParam<MooseEnum>("dislocation_character", dislocation_character, "Character of dislocation");
   MooseEnum dislocation_sign("positive negative", "positive");

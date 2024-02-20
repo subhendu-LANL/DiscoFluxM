@@ -92,21 +92,21 @@ ArraySourceDislocationVolume::computeQpResidual(RealEigenVector & residual)
   Real _dislocation_mobile_increment_ann = 0.00;
   Real _dislocation_mobile_increment_trap = 0.00;
 
-  RealEigenVector slip_increment, dislocation_mobile_increment;
+  RealEigenVector slip_rate, dislocation_mobile_increment;
   dislocation_mobile_increment.resize(_number_slip_systems);
-  slip_increment.resize(_number_slip_systems);
+  slip_rate.resize(_number_slip_systems);
 
   computeDisloVelocity();
   
   for (unsigned int i = 0; i < _number_slip_systems; ++i)
   {  
 	dislocation_mobile_increment[i] = 0.00;
-  slip_increment[i] = _u[_qp][i] *_dislo_density_factor_CDT * _burgers_vector_mag * dislo_velocity[i];
-		_dislocation_mobile_increment_mult = (_C_multi / std::pow(_burgers_vector_mag,2))* std::abs(slip_increment[i]);
-		_dislocation_mobile_increment_trap = (_C_trap/_burgers_vector_mag)*std::pow(_u[_qp][i]*_dislo_density_factor_CDT,0.5)* std::abs(slip_increment[i]);
-		_dislocation_mobile_increment_ann = (_C_m_ann*_u[_qp][i]*_dislo_density_factor_CDT)* std::abs(slip_increment[i]);
+  slip_rate[i] = _u[_qp][i] *_dislo_density_factor_CDT * _burgers_vector_mag * dislo_velocity[i];
+	_dislocation_mobile_increment_mult = (_C_multi / std::pow(_burgers_vector_mag,2))* std::abs(slip_rate[i]);
+	_dislocation_mobile_increment_trap = (_C_trap/_burgers_vector_mag)*std::pow(_u[_qp][i]*_dislo_density_factor_CDT,0.5)* std::abs(slip_rate[i]);
+	_dislocation_mobile_increment_ann = (_C_m_ann*_u[_qp][i]*_dislo_density_factor_CDT)* std::abs(slip_rate[i]);
 
-    dislocation_mobile_increment[i] =  _dislocation_mobile_increment_mult - _dislocation_mobile_increment_trap - _dislocation_mobile_increment_ann;
+    dislocation_mobile_increment[i] =  (_dislocation_mobile_increment_mult - _dislocation_mobile_increment_trap - _dislocation_mobile_increment_ann);
 	dislocation_mobile_increment[i] *= 1.0/_dislo_density_factor_CDT;  
 	
 	residual[i] = -_test[_i][_qp] * dislocation_mobile_increment[i];

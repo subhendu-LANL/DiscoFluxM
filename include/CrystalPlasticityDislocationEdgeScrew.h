@@ -20,7 +20,7 @@ permit others to do so.
 
 #pragma once
 
-#include "CrystalPlasticityStressUpdateBase.h"
+#include "StressUpdateCPBase.h"
 
 #include "MooseVariableFE.h"
 #include "MooseVariableScalar.h"
@@ -29,7 +29,7 @@ permit others to do so.
 class CrystalPlasticityDislocationEdgeScrew;
 
 
-class CrystalPlasticityDislocationEdgeScrew : public CrystalPlasticityStressUpdateBase
+class CrystalPlasticityDislocationEdgeScrew : public StressUpdateCPBase
 {
 public:
   static InputParameters validParams();
@@ -92,21 +92,21 @@ protected:
   const Real _dislo_density_initial;
   const Real _dislo_density_factor_CDT;
   const Real _C_multi, _C_trap, _C_m_ann, _C_im_ann;
+  Real _Coeff_hardening, _q1, _q2, _c1, _temp;
   Real Lbar;
 
   // Discoflux related material parameters that are constant
-  const	Real c1 =2.0;
+  //const	Real c1 =2.0;
   const	Real mu = 76e+03;
   const  Real nu =0.3;
   const	Real rho_m = 8960;
   const  Real B0 = 3.0e-11;
   const  Real g0 = 0.87;
-  const  Real q1 = 0.23;
-  const  Real q2 = 1.96;
+  //const  Real q1 = 0.23;
+  //const  Real q2 = 1.96;
   const  Real boltz = 1.38e-23; // Boltzman constant in Jule/Kelvin
-  const  Real temp =300;
-  const  Real omega0 = 8.0e+11;
-  Real _Coeff_hardening;
+  //const  Real temp =300;
+  const  Real omega0 = 2.0e+2; //8.0e+11;
   
   //const VariableValue & _Rho_EdgePositive_01;
   const ArrayVariableValue & _DD_EdgePositive;
@@ -123,7 +123,6 @@ protected:
 	MaterialProperty<std::vector<RealVectorValue>> & _slip_direction_edge;
 	MaterialProperty<std::vector<RealVectorValue>> & _slip_direction_screw;
 	MaterialProperty<std::vector<RealVectorValue>> & _slip_plane_normalboth;
-	const MaterialProperty<RankTwoTensor> & _crysrot;
   
   MaterialProperty<std::vector<Real>> & _dislocation_immobile;
   const MaterialProperty<std::vector<Real>> & _dislocation_immobile_old;
