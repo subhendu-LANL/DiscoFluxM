@@ -52,7 +52,6 @@ protected:
   std::vector<Real> _discl_transfer_amount;
     
   const MaterialProperty<std::vector<Real>> & _dislo_velocity_CP_edge;
-  const MaterialProperty<std::vector<Real>> & _dislo_velocity_CP_screw;
   
     // Dislocation character
   const enum class DislocationCharacter { edge, screw } _dislocationcharacter;  
@@ -63,11 +62,9 @@ protected:
   const MaterialProperty<RealVectorValue> & _Euler_angles_mat_prop_neighbor;
   
   const MaterialProperty<std::vector<RealVectorValue>> & _slip_direction_edge;
-  const MaterialProperty<std::vector<RealVectorValue>> & _slip_direction_screw;
   const MaterialProperty<std::vector<RealVectorValue>> & _slip_plane_normalboth; 
   
   const MaterialProperty<std::vector<RealVectorValue>> & _slip_direction_edge_neighbor;
-  const MaterialProperty<std::vector<RealVectorValue>> & _slip_direction_screw_neighbor;
   const MaterialProperty<std::vector<RealVectorValue>> & _slip_plane_normalboth_neighbor;
   
   /// Resolved shear stress on each slip system

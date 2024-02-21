@@ -40,7 +40,6 @@ protected:
   RealEigenVector negativeVelocityGradTestQp();  
 
   const MaterialProperty<std::vector<Real>> & _dislo_velocity_CP_edge;
-  const MaterialProperty<std::vector<Real>> & _dislo_velocity_CP_screw;
   RealEigenMatrix _Dislo_Velocity;
 
   enum class JacRes
@@ -64,6 +63,5 @@ protected:
   const enum class DislocationSign { positive, negative } _dislocationsign;
   // data related to slip_systems
   const MaterialProperty<std::vector<RealVectorValue>> & _slip_direction_edge;
-  const MaterialProperty<std::vector<RealVectorValue>> & _slip_direction_screw;
   const MaterialProperty<std::vector<RealVectorValue>> & _slip_plane_normalboth;
 };

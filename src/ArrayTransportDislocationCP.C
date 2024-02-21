@@ -26,7 +26,7 @@ ArrayTransportDislocationCP::validParams()
 {
   InputParameters params = ArrayKernel::validParams();
   params.addClassDescription("Continuum transport of dislocations(array variable) is modeled using advection model.");
-  MooseEnum upwinding_type("none full", "none");
+  MooseEnum upwinding_type("none full", "full");
   params.addParam<MooseEnum>("upwinding_type",
                              upwinding_type,
                              "Stabilization method used for the advection term");
@@ -43,19 +43,15 @@ ArrayTransportDislocationCP::validParams()
 ArrayTransportDislocationCP::ArrayTransportDislocationCP(const InputParameters & parameters)
   : ArrayKernel(parameters),
 	_dislo_velocity_CP_edge(getMaterialProperty<std::vector<Real>>("dislo_velocity_edge")),
-	_dislo_velocity_CP_screw(getMaterialProperty<std::vector<Real>>("dislo_velocity_screw")),
 	
   _upwinding(getParam<MooseEnum>("upwinding_type").getEnum<UpwindingType>()),
 	_u_nodal(_var.dofValues()),
   _upwind_node(0),
   _dtotal_mass_out(0),
   work_vector(_count),
-
 	_dislocationcharacter(getParam<MooseEnum>("dislocation_character").getEnum<DislocationCharacter>()),
 	_dislocationsign(getParam<MooseEnum>("dislocation_sign").getEnum<DislocationSign>()), 
-	
 	_slip_direction_edge(getMaterialProperty<std::vector<RealVectorValue>>("slip_direction_edge")),
-	_slip_direction_screw(getMaterialProperty<std::vector<RealVectorValue>>("slip_direction_screw")),
 	_slip_plane_normalboth(getMaterialProperty<std::vector<RealVectorValue>>("slip_plane_normalboth"))
 	
 {
@@ -80,7 +76,7 @@ ArrayTransportDislocationCP::negativeVelocityGradTestQp()
 			break;
 		}
 		for (unsigned int j = 0; j < LIBMESH_DIM; ++j) 
-        _Dislo_Velocity(i,j) = _dislo_velocity_CP_edge[_qp][i] * _slip_direction_rotated(j);
+        _Dislo_Velocity(i,j) = _dislo_velocity_CP_edge[_qp][i] * _slip_direction_rotated(j)*0.01;
   }
 	
 	return (-1) * _Dislo_Velocity * _array_grad_test[_i][_qp]; 

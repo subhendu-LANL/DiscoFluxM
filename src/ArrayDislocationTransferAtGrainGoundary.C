@@ -50,18 +50,13 @@ ArrayDislocationTransferAtGrainGoundary::ArrayDislocationTransferAtGrainGoundary
 	_u_Old(_var.slnOld()),
 	
     _dislo_velocity_CP_edge(getMaterialProperty<std::vector<Real>>("dislo_velocity_edge")), // Velocity value (signed)
-	_dislo_velocity_CP_screw(getMaterialProperty<std::vector<Real>>("dislo_velocity_screw")), // Velocity value (signed)
 	_dislocationcharacter(getParam<MooseEnum>("dislocation_character").getEnum<DislocationCharacter>()),
 	_dislocationsign(getParam<MooseEnum>("dislocation_sign").getEnum<DislocationSign>()), 
     _Euler_angles_mat_prop(getMaterialProperty<RealVectorValue>("Euler_angles")),
 	_Euler_angles_mat_prop_neighbor(getNeighborMaterialProperty<RealVectorValue>("Euler_angles")),
-	
 	_slip_direction_edge(getMaterialProperty<std::vector<RealVectorValue>>("slip_direction_edge")),
-	_slip_direction_screw(getMaterialProperty<std::vector<RealVectorValue>>("slip_direction_screw")),
 	_slip_plane_normalboth(getMaterialProperty<std::vector<RealVectorValue>>("slip_plane_normalboth")),
-	
 	_slip_direction_edge_neighbor(getNeighborMaterialProperty<std::vector<RealVectorValue>>("slip_direction_edge")),
-	_slip_direction_screw_neighbor(getNeighborMaterialProperty<std::vector<RealVectorValue>>("slip_direction_screw")),
 	_slip_plane_normalboth_neighbor(getNeighborMaterialProperty<std::vector<RealVectorValue>>("slip_plane_normalboth")),
 	
 	_tau(getMaterialPropertyByName<std::vector<Real>>("applied_shear_stress")),

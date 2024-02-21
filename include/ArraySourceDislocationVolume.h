@@ -38,7 +38,6 @@ protected:
   const Real _C_multi, _C_trap, _C_m_ann, _C_im_ann, _burgers_vector_mag;
 
   const MaterialProperty<std::vector<Real>> & _dislo_velocity_CP_edge;
-  const MaterialProperty<std::vector<Real>> & _dislo_velocity_CP_screw;
 
   // Dislocation character
   const enum class DislocationCharacter { edge, screw } _dislocationcharacter;  

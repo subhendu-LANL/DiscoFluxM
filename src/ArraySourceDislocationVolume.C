@@ -56,7 +56,6 @@ ArraySourceDislocationVolume::ArraySourceDislocationVolume(const InputParameters
 	_burgers_vector_mag(getParam<Real>("burgers_vector_mag")), 
 	
 	_dislo_velocity_CP_edge(getMaterialProperty<std::vector<Real>>("dislo_velocity_edge")),
-	_dislo_velocity_CP_screw(getMaterialProperty<std::vector<Real>>("dislo_velocity_screw")),
 
 	_dislocationcharacter(getParam<MooseEnum>("dislocation_character").getEnum<DislocationCharacter>()),
 	_dislocationsign(getParam<MooseEnum>("dislocation_sign").getEnum<DislocationSign>()), 

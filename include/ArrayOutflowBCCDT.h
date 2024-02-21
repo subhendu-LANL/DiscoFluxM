@@ -37,7 +37,6 @@ private:
   //RealVectorValue _velocity;
   std::vector<RealVectorValue> _Dislo_Velocity;
   const MaterialProperty<std::vector<Real>> & _dislo_velocity_CP_edge;
-  const MaterialProperty<std::vector<Real>> & _dislo_velocity_CP_screw;
   
   // Dislocation character
   const enum class DislocationCharacter { edge, screw } _dislocationcharacter;  
@@ -45,6 +44,5 @@ private:
   const enum class DislocationSign { positive, negative } _dislocationsign;
   
   const MaterialProperty<std::vector<RealVectorValue>> & _slip_direction_edge;
-  const MaterialProperty<std::vector<RealVectorValue>> & _slip_direction_screw;
   const MaterialProperty<std::vector<RealVectorValue>> & _slip_plane_normalboth;
 };

@@ -57,10 +57,10 @@ CrystalPlasticityDislocationEdgeScrew::validParams()
   params.addParam<Real>("c1", 2.0, "material parameter");
   params.addParam<Real>("temp", 300, "Temperature(K)");
   
-  params.addCoupledVar("DD_EdgePositive", 1.0e+5, "Coupled dislocation density, EdgePositive");
-  params.addCoupledVar("DD_EdgeNegative", 1.0e+5, "Coupled dislocation density, EdgeNegative");
-  params.addCoupledVar("DD_ScrewPositive", 1.0e+5, "Coupled dislocation density, ScrewPositive");
-  params.addCoupledVar("DD_ScrewNegative", 1.0e+5, "Coupled dislocation density, ScrewNegative");
+  params.addCoupledVar("DD_EdgePositive", 1.0, "Coupled dislocation density, EdgePositive");
+  params.addCoupledVar("DD_EdgeNegative", 1.0, "Coupled dislocation density, EdgeNegative");
+  params.addCoupledVar("DD_ScrewPositive", 1.0, "Coupled dislocation density, ScrewPositive");
+  params.addCoupledVar("DD_ScrewNegative", 1.0, "Coupled dislocation density, ScrewNegative");
 
   return params;
 }
@@ -103,7 +103,6 @@ CrystalPlasticityDislocationEdgeScrew::CrystalPlasticityDislocationEdgeScrew(
 	_dislocation_immobile_old(getMaterialPropertyOld<std::vector<Real>>(_base_name + "dislocation_immobile")),
 	
 	_dislo_velocity_edge(declareProperty<std::vector<Real>>("dislo_velocity_edge")),
-	_dislo_velocity_edge_old(getMaterialPropertyOld<std::vector<Real>>("dislo_velocity_edge")),
 	_dislo_velocity_screw(declareProperty<std::vector<Real>>("dislo_velocity_screw")),
 	_tau_old(getMaterialPropertyOld<std::vector<Real>>(_base_name + "applied_shear_stress")),
 		
@@ -186,11 +185,6 @@ CrystalPlasticityDislocationEdgeScrew::storeDislocationMobilityInformation()
 	_slip_direction_edge[_qp][i] = _slip_direction[i];
 	_slip_direction_edge[_qp][i] /= _slip_direction_edge[_qp][i].norm();
 	_slip_direction_edge[_qp][i] = _crysrot[_qp] * _slip_direction_edge[_qp][i]; 
-	
-	_slip_direction_screw[_qp][i] = _slip_direction[i].cross(_slip_plane_normal[i]);
-	_slip_direction_screw[_qp][i] /= _slip_direction_screw[_qp][i].norm();
-	_slip_direction_screw[_qp][i] = _crysrot[_qp] * _slip_direction_screw[_qp][i]; 
-	
 	_slip_plane_normalboth[_qp][i] = _slip_plane_normal[i];
 	_slip_plane_normalboth[_qp][i] /= _slip_plane_normalboth[_qp][i].norm();
 	_slip_plane_normalboth[_qp][i] = _crysrot[_qp] * _slip_plane_normalboth[_qp][i];
@@ -208,7 +202,7 @@ CrystalPlasticityDislocationEdgeScrew::setInitialConstitutiveVariableValues()
   for (unsigned int i = 0; i < _number_slip_systems; ++i)
   {
 	_dislocation_mobile[_qp][i] = (_DD_EdgePositive[_qp][i] + _DD_EdgeNegative[_qp][i] + _DD_ScrewPositive[_qp][i] + _DD_ScrewNegative[_qp][i]) * _dislo_density_factor_CDT;
-  _previous_substep_dislocation_mobile[i] = _dislocation_mobile[_qp][i] ; 
+	_previous_substep_dislocation_mobile[i] = 4.0 * _dislo_density_initial; //_dislocation_mobile[_qp][i] ; 
   }
 	_dislocation_immobile[_qp] = _dislocation_immobile_old[_qp];
     _previous_substep_dislocation_immobile = _dislocation_immobile_old[_qp];
@@ -230,8 +224,7 @@ getDisloVelocity();
 
 for (unsigned int i = 0; i < _number_slip_systems; ++i)
   {
-		_slip_rate[_qp][i] = (_DD_EdgePositive[_qp][i] + _DD_EdgeNegative[_qp][i]) * _dislo_density_factor_CDT * _burgers_vector_mag * _dislo_velocity_edge[_qp][i] +
-								( _DD_ScrewPositive[_qp][i] + _DD_ScrewNegative[_qp][i]) * _dislo_density_factor_CDT * _burgers_vector_mag * _dislo_velocity_screw[_qp][i];
+		_slip_rate[_qp][i] = _previous_substep_dislocation_mobile[i] * _burgers_vector_mag * _dislo_velocity_edge[_qp][i];
 
     if (std::abs(_slip_rate[_qp][i]) * _substep_dt > _slip_incr_tol)
     {
@@ -329,7 +322,6 @@ void
 CrystalPlasticityDislocationEdgeScrew::updateSubstepConstitutiveVariableValues()
 {
   _previous_substep_slip_resistance = _slip_resistance[_qp];
-  _previous_substep_dislocation_mobile = _dislocation_mobile[_qp];
   _previous_substep_dislocation_immobile = _dislocation_immobile[_qp];
 }
 
@@ -372,12 +364,12 @@ CrystalPlasticityDislocationEdgeScrew::DDCUpdate()
 			slip_plane_normal_rotated = _crysrot[_qp] * _slip_plane_normal[i];
 			_L_bar[i] = std::pow((_dislocation_mobile[_qp][i] + _dislocation_immobile[_qp][i]),-0.5); 
 			dislocationsPositive = _DD_EdgePositive[_qp][i];
-			dislocationsPositive = _DD_EdgeNegative[_qp][i];
+			dislocationsNegative = _DD_EdgeNegative[_qp][i];
 
 			_kappa_grad[i](0) = (_DD_EdgePositive_Grad[_qp](i) - _DD_EdgeNegative_Grad[_qp](i))*_dislo_density_factor_CDT;
 			_kappa_grad[i](1) = (_DD_EdgePositive_Grad[_qp](i+_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+_number_slip_systems))*_dislo_density_factor_CDT;
 			_kappa_grad[i](2) = (_DD_EdgePositive_Grad[_qp](i+2*_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+2*_number_slip_systems))*_dislo_density_factor_CDT;
-			_tau_b_local[i] = 0.1 * (( mu * std::pow(_L_bar[i],1))/(2*3.141*(1-nu)))*_burgers_vector_mag * (_kappa_grad[i]*slip_direction_rotated);
+			_tau_b_local[i] = (( mu * std::pow(_L_bar[i],1))/(2*3.141*(1-nu)))*_burgers_vector_mag * (_kappa_grad[i]*slip_direction_rotated);
 			Stress_internal += _tau_b_local[i]*(libMesh::outer_product(slip_direction_rotated, slip_plane_normal_rotated) + libMesh::outer_product(slip_plane_normal_rotated, slip_direction_rotated));
 
 		  }

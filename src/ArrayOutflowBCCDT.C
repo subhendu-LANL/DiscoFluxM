@@ -39,11 +39,9 @@ ArrayOutflowBCCDT::ArrayOutflowBCCDT(const InputParameters & parameters)
   : ArrayIntegratedBC(parameters),
     _Dislo_Velocity(_count),
     _dislo_velocity_CP_edge(getMaterialProperty<std::vector<Real>>("dislo_velocity_edge")), // Velocity value (signed)
-	_dislo_velocity_CP_screw(getMaterialProperty<std::vector<Real>>("dislo_velocity_screw")), // Velocity value (signed)
 	_dislocationcharacter(getParam<MooseEnum>("dislocation_character").getEnum<DislocationCharacter>()),
 	_dislocationsign(getParam<MooseEnum>("dislocation_sign").getEnum<DislocationSign>()), 
 	_slip_direction_edge(getMaterialProperty<std::vector<RealVectorValue>>("slip_direction_edge")),
-	_slip_direction_screw(getMaterialProperty<std::vector<RealVectorValue>>("slip_direction_screw")),
 	_slip_plane_normalboth(getMaterialProperty<std::vector<RealVectorValue>>("slip_plane_normalboth"))
 {
 }
