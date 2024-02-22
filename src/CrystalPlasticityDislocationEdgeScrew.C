@@ -105,9 +105,9 @@ CrystalPlasticityDislocationEdgeScrew::CrystalPlasticityDislocationEdgeScrew(
 	_dislo_velocity_edge(declareProperty<std::vector<Real>>("dislo_velocity_edge")),
 	_dislo_velocity_screw(declareProperty<std::vector<Real>>("dislo_velocity_screw")),
 	_tau_old(getMaterialPropertyOld<std::vector<Real>>(_base_name + "applied_shear_stress")),
-		
+
 	// DDC related variables
-	_kappa(declareProperty<std::vector<Real>>("kappa")),
+	_kappa(declareProperty<std::vector<Real>>(_base_name + "kappa")),
 	_kappa_grad(_number_slip_systems, 0.00),
 	_tau_b_local(_number_slip_systems, 0.00),
 
