@@ -1,20 +1,7 @@
 [Mesh]
-inactive = 'gmg '
-[./gmg]
-  type = GeneratedMeshGenerator
-  dim = 3
-  nx = 4
-  ny = 4
-  nz = 2
-  xmax = 0.1
-  ymax = 0.1
-  zmax = 0.04
-  elem_type = HEX8 #TET4, TET10, HEX, HEX8
-  #show_info = True
- []
  [./MeshFile]
   type = FileMeshGenerator
-  file = './Mesh/Mesh.e'
+  file = './Mesh/Mesh_n2_10X10X2.e'
  [../]
 []
 
