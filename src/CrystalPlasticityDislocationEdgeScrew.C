@@ -105,6 +105,7 @@ CrystalPlasticityDislocationEdgeScrew::CrystalPlasticityDislocationEdgeScrew(
 	_dislo_velocity_edge(declareProperty<std::vector<Real>>("dislo_velocity_edge")),
 	_dislo_velocity_screw(declareProperty<std::vector<Real>>("dislo_velocity_screw")),
 	_tau_old(getMaterialPropertyOld<std::vector<Real>>(_base_name + "applied_shear_stress")),
+	_GND_density(getMaterialProperty<std::vector<Real>>(_base_name + "GND_density")),
 
 	// DDC related variables
 	_kappa(declareProperty<std::vector<Real>>(_base_name + "kappa")),
@@ -369,7 +370,7 @@ CrystalPlasticityDislocationEdgeScrew::DDCUpdate()
 			_kappa_grad[i](0) = (_DD_EdgePositive_Grad[_qp](i) - _DD_EdgeNegative_Grad[_qp](i))*_dislo_density_factor_CDT;
 			_kappa_grad[i](1) = (_DD_EdgePositive_Grad[_qp](i+_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+_number_slip_systems))*_dislo_density_factor_CDT;
 			_kappa_grad[i](2) = (_DD_EdgePositive_Grad[_qp](i+2*_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+2*_number_slip_systems))*_dislo_density_factor_CDT;
-			_tau_b_local[i] = (( mu * std::pow(_L_bar[i],1))/(2*3.141*(1-nu)))*_burgers_vector_mag * (_kappa_grad[i]*slip_direction_rotated);
+			_tau_b_local[i] = 0.1*(( mu * std::pow(_L_bar[i],1))/(2*3.141*(1-nu)))*_burgers_vector_mag * (_kappa_grad[i]*slip_direction_rotated);
 			Stress_internal += _tau_b_local[i]*(libMesh::outer_product(slip_direction_rotated, slip_plane_normal_rotated) + libMesh::outer_product(slip_plane_normal_rotated, slip_direction_rotated));
 
 		  }
@@ -408,7 +409,6 @@ CrystalPlasticityDislocationEdgeScrew::getDisloVelocity()
 		  deltaG  = deltaG0*( std::pow(inner,_q2) );
 		  exp_arg = deltaG / (boltz*_temp);
 		  t_wait[i] = (exp(exp_arg) - 1.0) / omega0;
-		  //if (tau_effAbs[i]>0.00) t_wait[i] = std::pow((tau_effAbs[i] / _slip_resistance[_qp][i]),_q1) * (_L_bar[i]);
 	  }
 	  else
 		 t_wait[i] = 0.00;
@@ -426,7 +426,7 @@ CrystalPlasticityDislocationEdgeScrew::getDisloVelocity()
 	   {  
 		t_run[i] = _L_bar[i] / vel_run[i];
 		_dislo_velocity_edge[_qp][i] = tau_effSign[i]*_L_bar[i] / (t_wait[i] + t_run[i]);
-		_dv_dtau[i] = 0.00; // simplest one. Works but slow convergence
+		_dv_dtau[i] = 0.00;
 
 		inner = 1.0 - std::pow((tau_effAbs[i] / slip_r[i] ),_q1);
 		deltaG  = deltaG0*( std::pow(inner,_q2) );
@@ -434,7 +434,6 @@ CrystalPlasticityDislocationEdgeScrew::getDisloVelocity()
 		dtw_dtau = (-1)*_q1*_q2*deltaG0/(omega0*boltz*_temp) * exp(exp_arg) * ( std::pow(inner,_q2-1) ) * std::pow((tau_effAbs[i] / slip_r[i] ),_q1-1) *(tau_effSign[i]/slip_r[i]);
 		dtr_dtau = (_L_bar[i]*B0/_burgers_vector_mag)*(tau_effSign[i]/std::pow(tau_effAbs[i],2));
 		_dv_dtau[i] = 0.00; //-1*_L_bar[i]*std::pow((t_wait[i] + t_run[i]),-2) * (dtw_dtau + dtr_dtau);
-
 	    _dislo_velocity_edge[_qp][i] = std::pow((tau_effAbs[i] / slip_r[i]),1.0/_q1) * tau_effSign[i]; // signed dislocation velocity
 	    _dv_dtau[i] = (1.0/_q1)*std::pow((tau_effAbs[i] / slip_r[i]),(1.0/_q1 - 1))*(tau_effSign[i]/slip_r[i]) * tau_effSign[i];
 	

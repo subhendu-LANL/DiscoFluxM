@@ -129,6 +129,7 @@ protected:
   MaterialProperty<std::vector<Real>> & _dislo_velocity_edge;
   MaterialProperty<std::vector<Real>> & _dislo_velocity_screw;
   const MaterialProperty<std::vector<Real>> & _tau_old;
+  const MaterialProperty<std::vector<Real>> & _GND_density;
   MaterialProperty<std::vector<Real>> & _kappa;
   
   // DDC related variables

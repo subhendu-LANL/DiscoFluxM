@@ -1,14 +1,27 @@
 [Mesh]
+inactive = 'gmg '
+[./gmg]
+  type = GeneratedMeshGenerator
+  dim = 3
+  nx = 4
+  ny = 4
+  nz = 2
+  xmax = 0.1
+  ymax = 0.1
+  zmax = 0.04
+  elem_type = HEX8 #TET4, TET10, HEX, HEX8
+  #show_info = True
+ []
  [./MeshFile]
   type = FileMeshGenerator
-  file = 'Mesh.e'
+  file = './Mesh/Mesh.e'
  [../]
 []
 
 [Outputs]
-    file_base = Data2_CP_DiscofluxGB
     csv = true
     exodus = true
+    console = true
 []
 
 [UserObjects]
@@ -46,14 +59,14 @@
     type = ArrayFunctionIC  
     variable = DD_EdgeNegative
    function = '1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0'
-  [../] 
+  [../]
   [./IC_DD_ScrewPositive]
-    type = ArrayFunctionIC  
+    type = ArrayFunctionIC
     variable = DD_ScrewPositive
     function = '1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0'
-  [../]  
+  [../]
   [./IC_DD_ScrewNegative]
-    type = ArrayFunctionIC  
+    type = ArrayFunctionIC
     variable = DD_ScrewNegative
     function = '1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0'
   [../]
@@ -95,6 +108,7 @@
     dislocation_character = edge
     dislocation_sign = negative
   [../]
+  
   
   [./dot_DD_ScrewPositive]
     type = ArrayTimeDerivative  
@@ -158,7 +172,7 @@
     boundary = 'bottom'
     function = 0.0
   [../]
-
+  
 []
 
 [Materials]
@@ -178,6 +192,7 @@
   add_variables = true
   new_system = true
   formulation = total
+  incremental = true
 []
 
 [Materials]
@@ -205,15 +220,12 @@
     DD_ScrewPositive = DD_ScrewPositive
     DD_ScrewNegative = DD_ScrewNegative
   [../]
-  [./compute_stress_wrapper]
-    type = ComputeLagrangianWrappedStress
-  [../]
 []
 
 [GlobalParams]
     dislo_density_factor_CDT = 1.0e+05
-    C_multi = 8.96e-06
-    C_trap = 9.0e-03
+    C_multi = 8.96e-07
+    C_trap = 9.0e-04
     C_m_ann = 0.5
     C_im_ann = 0.5
     burgers_vector_mag = 2.52e-07
@@ -232,9 +244,9 @@
   line_search = 'none'
   petsc_options_iname = '-pc_type -pc_factor_mat_solver_package -snes_type'
   petsc_options_value = 'lu       superlu_dist                  vinewtonrsls'
-  nl_abs_tol = 1e-7 
+  nl_abs_tol = 1e-5 
   nl_max_its = 10
-  l_abs_tol = 1e-7
+  l_abs_tol = 1e-5
   l_max_its = 20
 
   dtmax = 0.002
@@ -286,6 +298,262 @@
   [../]
 []
 
+[AuxVariables]
+  [./DD_EP_00]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EP_01]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EP_02]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EP_03]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EP_04]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EP_05]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EP_06]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EP_07]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EP_08]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EP_09]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EP_10]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EP_11]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+[]
+
+
+[AuxKernels]
+  [./DD_EP_00]
+   type = ArrayVariableComponent
+   variable = DD_EP_00
+   array_variable = DD_EdgePositive  
+   component = 0
+  [../]
+  [./DD_EP_01]
+   type = ArrayVariableComponent
+   variable = DD_EP_01
+   array_variable = DD_EdgePositive  
+   component = 1
+  [../]
+  [./DD_EP_02]
+   type = ArrayVariableComponent
+   variable = DD_EP_02
+   array_variable = DD_EdgePositive  
+   component = 2
+  [../]
+  [./DD_EP_03]
+   type = ArrayVariableComponent
+   variable = DD_EP_03
+   array_variable = DD_EdgePositive  
+   component = 3
+  [../]
+  [./DD_EP_04]
+   type = ArrayVariableComponent
+   variable = DD_EP_04
+   array_variable = DD_EdgePositive  
+   component = 4
+  [../]
+  [./DD_EP_05]
+   type = ArrayVariableComponent
+   variable = DD_EP_05
+   array_variable = DD_EdgePositive  
+   component = 5
+  [../]
+  [./DD_EP_06]
+   type = ArrayVariableComponent
+   variable = DD_EP_06
+   array_variable = DD_EdgePositive  
+   component = 6
+  [../]
+  [./DD_EP_07]
+   type = ArrayVariableComponent
+   variable = DD_EP_07
+   array_variable = DD_EdgePositive  
+   component = 7
+  [../]
+  [./DD_EP_08]
+   type = ArrayVariableComponent
+   variable = DD_EP_08
+   array_variable = DD_EdgePositive  
+   component = 8
+  [../]
+  [./DD_EP_09]
+   type = ArrayVariableComponent
+   variable = DD_EP_09
+   array_variable = DD_EdgePositive  
+   component = 9
+  [../]
+  [./DD_EP_10]
+   type = ArrayVariableComponent
+   variable = DD_EP_10
+   array_variable = DD_EdgePositive  
+   component = 10
+  [../]
+  [./DD_EP_11]
+   type = ArrayVariableComponent
+   variable = DD_EP_11
+   array_variable = DD_EdgePositive  
+   component = 11
+  [../]
+[]
+  
+
+[AuxVariables]
+  [./DD_EN_00]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EN_01]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EN_02]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EN_03]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EN_04]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EN_05]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EN_06]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EN_07]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EN_08]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EN_09]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EN_10]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./DD_EN_11]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+[]
+
+
+[AuxKernels]
+  [./DD_EN_00]
+   type = ArrayVariableComponent
+   variable = DD_EN_00
+   array_variable = DD_EdgeNegative  
+   component = 0
+  [../]
+  [./DD_EN_01]
+   type = ArrayVariableComponent
+   variable = DD_EN_01
+   array_variable = DD_EdgeNegative  
+   component = 1
+  [../]
+  [./DD_EN_02]
+   type = ArrayVariableComponent
+   variable = DD_EN_02
+   array_variable = DD_EdgeNegative  
+   component = 2
+  [../]
+  [./DD_EN_03]
+   type = ArrayVariableComponent
+   variable = DD_EN_03
+   array_variable = DD_EdgeNegative  
+   component = 3
+  [../]
+  [./DD_EN_04]
+   type = ArrayVariableComponent
+   variable = DD_EN_04
+   array_variable = DD_EdgeNegative  
+   component = 4
+  [../]
+  [./DD_EN_05]
+   type = ArrayVariableComponent
+   variable = DD_EN_05
+   array_variable = DD_EdgeNegative  
+   component = 5
+  [../]
+  [./DD_EN_06]
+   type = ArrayVariableComponent
+   variable = DD_EN_06
+   array_variable = DD_EdgeNegative 
+   component = 6
+  [../]
+  [./DD_EN_07]
+   type = ArrayVariableComponent
+   variable = DD_EN_07
+   array_variable = DD_EdgeNegative
+   component = 7
+  [../]
+  [./DD_EN_08]
+   type = ArrayVariableComponent
+   variable = DD_EN_08
+   array_variable = DD_EdgeNegative
+   component = 8
+  [../]
+  [./DD_EN_09]
+   type = ArrayVariableComponent
+   variable = DD_EN_09
+   array_variable = DD_EdgeNegative
+   component = 9
+  [../]
+  [./DD_EN_10]
+   type = ArrayVariableComponent
+   variable = DD_EN_10
+   array_variable = DD_EdgeNegative
+   component = 10
+  [../]
+  [./DD_EN_11]
+   type = ArrayVariableComponent
+   variable = DD_EN_11
+   array_variable = DD_EdgeNegative
+   component = 11
+  [../]
+[]
+  
+
 
 [AuxVariables]
   [./shear_stress_00]
@@ -301,6 +569,7 @@
    family = MONOMIAL
   [../]
 []
+
 
 [AuxKernels]
 [./shear_stress_00]
@@ -720,6 +989,139 @@
    variable = DD_mobile_11
    property = dislocation_immobile
    index = 11
+  [../]
+[]
+
+
+[AuxVariables]
+  [./GND_density_00]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./GND_density_01]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./GND_density_02]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./GND_density_03]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./GND_density_04]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./GND_density_05]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./GND_density_06]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./GND_density_07]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./GND_density_08]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./GND_density_09]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./GND_density_10]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+  [./GND_density_11]
+   order = CONSTANT
+   family = MONOMIAL
+  [../]
+[]
+
+[AuxKernels]
+[./GND_density_00]
+   type = MaterialStdVectorAux
+   variable = GND_density_00
+   property = kappa  
+   index = 0
+  [../]
+[./GND_density_01]
+   type = MaterialStdVectorAux
+   variable = GND_density_01
+   property = kappa  
+   index = 1
+  [../]
+[./GND_density_02]
+   type = MaterialStdVectorAux
+   variable = GND_density_02
+   property = kappa  
+   index = 2
+  [../]
+[./GND_density_03]
+   type = MaterialStdVectorAux
+   variable = GND_density_03
+   property = kappa  
+   index = 3
+  [../]
+[./GND_density_04]
+   type = MaterialStdVectorAux
+   variable = GND_density_04
+   property = kappa  
+   index = 4
+  [../]
+[./GND_density_05]
+   type = MaterialStdVectorAux
+   variable = GND_density_05
+   property = kappa  
+   index = 5
+  [../]
+[./GND_density_06]
+   type = MaterialStdVectorAux
+   variable = GND_density_06
+   property = kappa  
+   index = 6
+  [../]
+[./GND_density_07]
+   type = MaterialStdVectorAux
+   variable = GND_density_07
+   property = kappa  
+   index = 7
+  [../]
+[./GND_density_08]
+   type = MaterialStdVectorAux
+   variable = GND_density_08
+   property = kappa  
+   index = 8
+  [../]
+[./GND_density_09]
+   type = MaterialStdVectorAux
+   variable = GND_density_09
+   property = kappa  
+   index = 9
+  [../]
+[./GND_density_10]
+   type = MaterialStdVectorAux
+   variable = GND_density_10
+   property = kappa  
+   index = 10
+  [../]
+[./GND_density_11]
+   type = MaterialStdVectorAux
+   variable = GND_density_11
+   property = kappa  
+   index = 11
+  [../]
+[]
+
+[Materials]
+  [./compute_stress_wrapper]
+    type = ComputeLagrangianWrappedStress
   [../]
 []
 
