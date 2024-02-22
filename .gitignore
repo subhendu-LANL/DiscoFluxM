@@ -265,6 +265,7 @@ share/
 
 # Ignore vscode local parameters
 .vscode/*
+src/subhendu/*
 /test/tests/subhendu/*
 # App Resource file (including modules/)
 /test/moose_test.yaml

@@ -130,7 +130,7 @@ ArrayDislocationTransferAtGrainGoundary::computeQpJacobian(Moose::DGJacobianType
 void
 ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 {
-	 Real temp =0.00;
+	 Real scalarProduct =0.00, density_initial, density_critical_relative;
 	std::vector<std::vector<Real>> L_GB, M_mod_GB, M_mod_GB_Norm, N_GB, N_mod_GB;
 	std::vector<Real> Sum_M_mod_GB_i, Sum_M_mod_GB_j, MaxValue_i, MaxValue_j;
 	std::vector<int> Max_i, Max_j;
@@ -165,11 +165,11 @@ ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 		_slip_plane_normal_rotated_neighbor = _slip_plane_normalboth_neighbor[_qp][j];	
 	
 		l2 = _slip_plane_normal_rotated_neighbor.cross(-_normals[_qp]);  
-		temp = std::abs((l1 * l2));
+		scalarProduct = std::abs((l1 * l2));
 		L_GB[i][j] = std::abs((l1 * l2));
 		N_GB[i][j] =  (_slip_plane_normal_rotated * _slip_plane_normal_rotated_neighbor);
-		temp *= (_slip_direction_rotated * _slip_direction_rotated_neighbor);
-		M_mod_GB[i][j] = L_GB[i][j] * N_GB[i][j] * temp;
+		scalarProduct *= (_slip_direction_rotated * _slip_direction_rotated_neighbor);
+		M_mod_GB[i][j] = L_GB[i][j] * N_GB[i][j] * scalarProduct;
 		
 		Sum_M_mod_GB_i[i] += M_mod_GB[i][j];
 		Sum_M_mod_GB_j[j] += M_mod_GB[i][j];
@@ -196,10 +196,9 @@ ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 		}
 		velocity = _dislo_velocity_CP_edge[_qp][i] * _slip_direction_rotated;
 	
-	Real density_initial = 1.00;
-	Real density_critical_relative = density_initial + (_density_critical - density_initial) * (Interface_Adv_Coeff[i][index_max_coeff] - 1.0)/(0.5 - 1.0); 
+	density_initial = 1.00;
+	density_critical_relative = density_initial + (_density_critical - density_initial) * (Interface_Adv_Coeff[i][index_max_coeff] - 1.0)/(0.5 - 1.0); 
 	if((_u_Old[_qp][i] > density_critical_relative) && (velocity*_normals[_qp] > 0.00) && std::abs(_tau[_qp][i])>_tau_critical) 
-	         _discl_transfer_amount[i] = velocity * _normals[_qp]*0.01; 
+	         _discl_transfer_amount[i] = velocity * _normals[_qp]*0.1; 
 	}
 }
-

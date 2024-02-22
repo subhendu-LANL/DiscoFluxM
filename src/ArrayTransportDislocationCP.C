@@ -29,7 +29,7 @@ ArrayTransportDislocationCP::validParams()
   MooseEnum upwinding_type("none full", "full");
   params.addParam<MooseEnum>("upwinding_type",
                              upwinding_type,
-                             "Stabilization method used for the advection term");
+                             "Stabilization method used for the transport term");
   MooseEnum dislocation_character("edge screw");
   params.addRequiredParam<MooseEnum>("dislocation_character", dislocation_character, "Character of dislocation");
   MooseEnum dislocation_sign("positive negative");
@@ -76,7 +76,7 @@ ArrayTransportDislocationCP::negativeVelocityGradTestQp()
 			break;
 		}
 		for (unsigned int j = 0; j < LIBMESH_DIM; ++j) 
-        _Dislo_Velocity(i,j) = _dislo_velocity_CP_edge[_qp][i] * _slip_direction_rotated(j)*0.01;
+        _Dislo_Velocity(i,j) = _dislo_velocity_CP_edge[_qp][i] * _slip_direction_rotated(j);
   }
 	
 	return (-1) * _Dislo_Velocity * _array_grad_test[_i][_qp]; 

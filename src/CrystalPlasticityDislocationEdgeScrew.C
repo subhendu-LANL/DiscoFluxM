@@ -202,7 +202,7 @@ CrystalPlasticityDislocationEdgeScrew::setInitialConstitutiveVariableValues()
   for (unsigned int i = 0; i < _number_slip_systems; ++i)
   {
 	_dislocation_mobile[_qp][i] = (_DD_EdgePositive[_qp][i] + _DD_EdgeNegative[_qp][i] + _DD_ScrewPositive[_qp][i] + _DD_ScrewNegative[_qp][i]) * _dislo_density_factor_CDT;
-	_previous_substep_dislocation_mobile[i] = 4.0 * _dislo_density_initial; //_dislocation_mobile[_qp][i] ; 
+	_previous_substep_dislocation_mobile[i] = _dislocation_mobile[_qp][i] ; // 4.0 * _dislo_density_initial; _dislocation_mobile[_qp][i] ; 
   }
 	_dislocation_immobile[_qp] = _dislocation_immobile_old[_qp];
     _previous_substep_dislocation_immobile = _dislocation_immobile_old[_qp];
