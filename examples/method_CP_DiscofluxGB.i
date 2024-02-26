@@ -6,6 +6,7 @@
 []
 
 [Outputs]
+    file_base = method_Discoflux
     csv = true
     exodus = true
     console = true

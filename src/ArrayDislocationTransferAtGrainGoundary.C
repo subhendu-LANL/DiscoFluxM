@@ -74,15 +74,10 @@ ArrayDislocationTransferAtGrainGoundary::computeQpResidual(Moose::DGResidualType
   r.resize(_count);
   r.setZero();
 
-	if(_current_elem->subdomain_id() == _neighbor_elem->subdomain_id())  return r;// to check if there is any boundary inside the same subdomain
+	if(_current_elem->subdomain_id() == _neighbor_elem->subdomain_id())  return r;
 	
 	computeInterfaceAdvCoeff(); 
 
-
-  bool DisclTransferNonZero=false;
-
-  for (unsigned int i = 0; i < _count; i++) 
-      if(std::abs(_discl_transfer_amount[i])>0.00) DisclTransferNonZero = true;
 
   switch (type)
   {
@@ -106,7 +101,7 @@ ArrayDislocationTransferAtGrainGoundary::computeQpJacobian(Moose::DGJacobianType
    RealEigenVector jac ;
   jac.resize(_count);
   jac.setZero();
-  if(_current_elem->subdomain_id() == _neighbor_elem->subdomain_id())  return jac;// to check if there is any boundary inside the same subdomain
+  if(_current_elem->subdomain_id() == _neighbor_elem->subdomain_id())  return jac;
 	
 	computeInterfaceAdvCoeff();
 	
