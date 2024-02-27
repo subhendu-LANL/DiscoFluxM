@@ -129,7 +129,7 @@ CrystalPlasticityDislocationEdgeScrew::CrystalPlasticityDislocationEdgeScrew(
   _dv_dtau(_number_slip_systems, 0.00),
   _L_bar(_number_slip_systems, 0.00),
 
-  // resize local variables realted to gerDisoVelocity**
+  // resize local variables realted to dislocation velocity
   t_wait(_number_slip_systems,0.00),
   t_run(_number_slip_systems,0.00),
   vel_run(_number_slip_systems,0.00),
