@@ -1,7 +1,7 @@
 [Mesh]
  [./MeshFile]
   type = FileMeshGenerator
-  file = './Mesh/Mesh_n2_10X10X2.e'
+  file = './Mesh/Mesh.e'
  [../]
 []
 
@@ -48,16 +48,6 @@
     variable = DD_EdgeNegative
    function = '1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0'
   [../]
-  [./IC_DD_ScrewPositive]
-    type = ArrayFunctionIC
-    variable = DD_ScrewPositive
-    function = '1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0'
-  [../]
-  [./IC_DD_ScrewNegative]
-    type = ArrayFunctionIC
-    variable = DD_ScrewNegative
-    function = '1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0'
-  [../]
 []
 
 [Kernels]
@@ -101,36 +91,11 @@
   [./dot_DD_ScrewPositive]
     type = ArrayTimeDerivative  
     variable = DD_ScrewPositive
-    time_derivative_coefficient = ArrayCoeff
   [../]
   
   [./dot_DD_ScrewNegative]
     type = ArrayTimeDerivative  
     variable = DD_ScrewNegative
-    time_derivative_coefficient = ArrayCoeff
-  [../]
-[]
-
-[InterfaceKernels]
-  [./Intf_Avd_DD_EdgePositive]
-    type = ArrayDislocationTransferAtGrainGoundary
-    variable = DD_EdgePositive
-    neighbor_var = DD_EdgePositive
-    dislocation_character = edge
-    dislocation_sign = positive
-    boundary = surface_GB
-    density_critical = 2.0
-    tau_critical = 50
-  [../]
-  [./Intf_Avd_DD_EdgeNegative]
-    type = ArrayDislocationTransferAtGrainGoundary
-    variable = DD_EdgeNegative
-    neighbor_var = DD_EdgeNegative
-    dislocation_character = edge
-    dislocation_sign = negative
-    boundary = surface_GB
-    density_critical = 2.0
-    tau_critical = 50
   [../]
 []
 
@@ -163,14 +128,6 @@
   
 []
 
-[Materials]
-  [./ArrayCoeff]
-    type = GenericConstantArray
-    prop_name = 'ArrayCoeff'
-    prop_value = '1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0'
-  []
-[]
-
 [GlobalParams]
   displacements = 'disp_x disp_y disp_z'
 []
@@ -198,9 +155,9 @@
     type = CrystalPlasticityDislocationEdgeScrew
     number_slip_systems = 12
     slip_sys_file_name = input_slip_sys.inp
-    lattice_friction = 35
-    Coeff_hardening = 0.55
-    dislo_density_initial = 1.0e+05
+    lattice_friction = 15
+    Coeff_hardening = 0.85
+    dislo_density_initial = 1.0e+06
     slip_increment_tolerance = 2.0e-2
     DD_EdgePositive = DD_EdgePositive
     DD_EdgeNegative = DD_EdgeNegative
@@ -210,7 +167,7 @@
 []
 
 [GlobalParams]
-    dislo_density_factor_CDT = 1.0e+05
+    dislo_density_factor_CDT = 1.0e+06
     C_multi = 8.96e-07
     C_trap = 9.0e-04
     C_m_ann = 0.5

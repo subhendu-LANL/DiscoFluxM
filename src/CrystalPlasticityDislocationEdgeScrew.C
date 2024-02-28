@@ -166,10 +166,11 @@ CrystalPlasticityDislocationEdgeScrew::initQpStatefulProperties()
 	_slip_direction_screw[_qp][i].zero();
 	_slip_plane_normalboth[_qp][i].zero();
 
-    _slip_resistance[_qp][i] = _lattice_friction + _Coeff_hardening*mu*_burgers_vector_mag*std::sqrt(1.0*4*2 * _dislo_density_initial + 0.1*11*4*2*_dislo_density_initial); // approximate
+    _slip_resistance[_qp][i] = _lattice_friction + _Coeff_hardening*mu*_burgers_vector_mag*std::sqrt(1.0*4*2 * _dislo_density_initial*_dislo_density_factor_CDT + 
+	                           0.1*11*4*2*_dislo_density_initial*_dislo_density_factor_CDT); // approximate
     _slip_rate[_qp][i] = 0.0;
-	
-	_dislocation_immobile[_qp][i] = 4.0 * _dislo_density_initial;
+	_dislocation_mobile[_qp][i] = 4 * _dislo_density_initial*_dislo_density_factor_CDT;
+	_dislocation_immobile[_qp][i] = 4.0 * _dislo_density_initial*_dislo_density_factor_CDT;
 	_dislo_velocity_edge[_qp][i] = 0.00;
 	_dislo_velocity_screw[_qp][i] = 0.00;
 	_kappa[_qp][i] = 0.0;
@@ -203,7 +204,7 @@ CrystalPlasticityDislocationEdgeScrew::setInitialConstitutiveVariableValues()
   for (unsigned int i = 0; i < _number_slip_systems; ++i)
   {
 	_dislocation_mobile[_qp][i] = (_DD_EdgePositive[_qp][i] + _DD_EdgeNegative[_qp][i] + _DD_ScrewPositive[_qp][i] + _DD_ScrewNegative[_qp][i]) * _dislo_density_factor_CDT;
-	_previous_substep_dislocation_mobile[i] = _dislocation_mobile[_qp][i] ; // 4.0 * _dislo_density_initial; _dislocation_mobile[_qp][i] ; 
+	_previous_substep_dislocation_mobile[i] = _dislocation_mobile[_qp][i] ; // 4.0 * _dislo_density_initial*_dislo_density_factor_CDT; _dislocation_mobile[_qp][i] ; 
   }
 	_dislocation_immobile[_qp] = _dislocation_immobile_old[_qp];
     _previous_substep_dislocation_immobile = _dislocation_immobile_old[_qp];

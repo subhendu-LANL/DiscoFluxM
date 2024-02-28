@@ -178,7 +178,6 @@
   [./compute_stress]
     type = StressUpdateCP
     crystal_plasticity_models = 'CP_DiscoFlux'
-    rtol = 1.0e-02
   [../]
   [./CP_DiscoFlux]
     type = CrystalPlasticityDislocationEdgeScrew
