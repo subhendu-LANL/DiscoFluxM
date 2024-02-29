@@ -200,7 +200,6 @@
     slip_sys_file_name = input_slip_sys.inp
     lattice_friction = 35
     Coeff_hardening = 0.55
-    dislo_density_initial = 1.0e+05
     slip_increment_tolerance = 2.0e-2
     DD_EdgePositive = DD_EdgePositive
     DD_EdgeNegative = DD_EdgeNegative
@@ -210,9 +209,10 @@
 []
 
 [GlobalParams]
+    dislo_density_initial = 1.0
     dislo_density_factor_CDT = 1.0e+05
-    C_multi = 8.96e-07
-    C_trap = 9.0e-04
+    C_multi = 8.96e-06
+    C_trap = 9.0e-03
     C_m_ann = 0.5
     C_im_ann = 0.5
     burgers_vector_mag = 2.52e-07
