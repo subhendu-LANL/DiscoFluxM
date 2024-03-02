@@ -1,7 +1,7 @@
 [Mesh]
  [./MeshFile]
   type = FileMeshGenerator
-  file = './Mesh/Mesh_n2_10X10X2.e'
+  file = './Mesh/n2-id1_WithGB.e'
  [../]
 []
 
@@ -138,26 +138,26 @@
   [./BC_Loading]
     type = FunctionDirichletBC
     variable = disp_y
-    boundary = 'top bottom '
+    boundary = 'y0 y1 '
     function = '-0.1*y*t'
   [../]
 
   [./BC_BottomLeft_X]
     type = FunctionDirichletBC
     variable = disp_x
-    boundary = 'bottom'
+    boundary = 'y0'
     function = 0.0
   [../]
    [./BC_BottomLeft_Y]
     type = FunctionDirichletBC
     variable = disp_y
-    boundary = 'bottom'
+    boundary = 'y0'
     function = 0.0
   [../]
    [./BC_BottomBack_Z]
     type = FunctionDirichletBC
     variable = disp_z
-    boundary = 'bottom'
+    boundary = 'y0'
     function = 0.0
   [../]
   
@@ -236,7 +236,7 @@
   l_abs_tol = 1e-5
   l_max_its = 20
 
-  dtmax = 0.002
+  dtmax = 0.001
   dtmin = 0.00000001
   end_time = 1
   [./TimeStepper]
