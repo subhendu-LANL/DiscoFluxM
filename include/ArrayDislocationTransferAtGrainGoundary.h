@@ -42,7 +42,7 @@ protected:
   //unsigned int _index_neighbor_var;
 
   //RealVectorValue _V, _V_neighbor;
-  Real  _density_critical, _tau_critical;
+  Real  _density_critical, _tau_critical, _scale_factor;
   const ArrayVariableValue & _u_Old;
   
   RealVectorValue velocity, velocity_neighbor;

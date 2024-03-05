@@ -34,6 +34,7 @@ ArrayDislocationTransferAtGrainGoundary::validParams()
 
   params.addParam<Real>("density_critical", 1.0,"Critical density beyond which there will be dislocation transfer across Grain Boundary"); 
   params.addParam<Real>("tau_critical", 0.0,"Critical resolved shear stres beyond which there will be dislocation transfer across Grain Boundary");   
+  params.addParam<Real>("scale_factor", 1.0,"scaling factor"); 
   MooseEnum dislocation_character("edge screw", "edge");
   params.addParam<MooseEnum>("dislocation_character", dislocation_character, "Character of dislocation");
   MooseEnum dislocation_sign("positive negative", "positive");
@@ -47,6 +48,7 @@ ArrayDislocationTransferAtGrainGoundary::ArrayDislocationTransferAtGrainGoundary
   
 	_density_critical(getParam<Real>("density_critical")),
 	_tau_critical(getParam<Real>("tau_critical")),
+	_scale_factor(getParam<Real>("scale_factor")),
 	_u_Old(_var.slnOld()),
 	
     _dislo_velocity_CP_edge(getMaterialProperty<std::vector<Real>>("dislo_velocity_edge")), // Velocity value (signed)
@@ -74,10 +76,16 @@ ArrayDislocationTransferAtGrainGoundary::computeQpResidual(Moose::DGResidualType
   r.resize(_count);
   r.setZero();
 
-	if(_current_elem->subdomain_id() == _neighbor_elem->subdomain_id())  return r;
+	//if(_current_elem->subdomain_id() == _neighbor_elem->subdomain_id())  return r;
 	
 	computeInterfaceAdvCoeff(); 
 
+    if(_qp==0 && false)
+	for (unsigned int i = 0; i < _count; i++)
+	    if (std::abs(_discl_transfer_amount[i]) > 0.00)
+	    std::cout<<"Index:"<<i<<'\n'
+		    <<" index:"<<i<<" DD:"<<_u[_qp][i]<<" _discl_transfer_amount[i]:"<<_discl_transfer_amount[i]
+			<<'\n';
 
   switch (type)
   {
@@ -114,6 +122,7 @@ ArrayDislocationTransferAtGrainGoundary::computeQpJacobian(Moose::DGJacobianType
      break;
 
     case Moose::NeighborElement:
+	  if(true)
 	  for (unsigned int i = 0; i < _count; i++) jac[_index_outgoingslip[i]] += -_phi[_j][_qp] * _discl_transfer_amount[i] * _test_neighbor[_i][_qp];
      break;
 
@@ -194,6 +203,6 @@ ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 	density_initial = 1.00;
 	density_critical_relative = density_initial + (_density_critical - density_initial) * (Interface_Adv_Coeff[i][index_max_coeff] - 1.0)/(0.5 - 1.0); 
 	if((_u_Old[_qp][i] > density_critical_relative) && (velocity*_normals[_qp] > 0.00) && std::abs(_tau[_qp][i])>_tau_critical) 
-	         _discl_transfer_amount[i] = velocity * _normals[_qp]*1.0; 
+	         _discl_transfer_amount[i] = _scale_factor * velocity * _normals[_qp]; 
 	}
 }
