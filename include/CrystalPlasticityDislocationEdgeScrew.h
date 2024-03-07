@@ -126,8 +126,7 @@ protected:
   
   MaterialProperty<std::vector<Real>> & _dislocation_immobile;
   const MaterialProperty<std::vector<Real>> & _dislocation_immobile_old;
-  MaterialProperty<std::vector<Real>> & _dislo_velocity_edge;
-  MaterialProperty<std::vector<Real>> & _dislo_velocity_screw;
+  MaterialProperty<std::vector<Real>> & _dislo_velocity;
   const MaterialProperty<std::vector<Real>> & _tau_old;
   const MaterialProperty<std::vector<Real>> & _GND_density;
   MaterialProperty<std::vector<Real>> & _kappa;

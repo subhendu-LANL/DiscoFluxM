@@ -169,11 +169,10 @@ ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 		_slip_plane_normal_rotated_neighbor = _slip_plane_normalboth_neighbor[_qp][j];	
 	
 		l2 = _slip_plane_normal_rotated_neighbor.cross(-_normals[_qp]);  
-		scalarProduct = std::abs((l1 * l2));
 		L_GB[i][j] = std::abs((l1 * l2));
 		N_GB[i][j] =  (_slip_plane_normal_rotated * _slip_plane_normal_rotated_neighbor);
-		scalarProduct *= (_slip_direction_rotated * _slip_direction_rotated_neighbor);
-		M_mod_GB[i][j] = L_GB[i][j] * N_GB[i][j] * scalarProduct;
+		scalarProduct = (_slip_direction_rotated * _slip_direction_rotated_neighbor);
+		M_mod_GB[i][j] = std::abs(L_GB[i][j] * N_GB[i][j] * scalarProduct);
 		
 		Sum_M_mod_GB_i[i] += M_mod_GB[i][j];
 		Sum_M_mod_GB_j[j] += M_mod_GB[i][j];
