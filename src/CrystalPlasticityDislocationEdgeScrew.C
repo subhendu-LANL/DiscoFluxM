@@ -102,7 +102,8 @@ CrystalPlasticityDislocationEdgeScrew::CrystalPlasticityDislocationEdgeScrew(
 	_dislocation_immobile(declareProperty<std::vector<Real>>(_base_name + "dislocation_immobile")),
 	_dislocation_immobile_old(getMaterialPropertyOld<std::vector<Real>>(_base_name + "dislocation_immobile")),
 	
-	_dislo_velocity(declareProperty<std::vector<Real>>("dislo_velocity_edge")),
+	_dislo_velocity_edge(declareProperty<std::vector<Real>>("dislo_velocity_edge")),
+	_dislo_velocity_screw(declareProperty<std::vector<Real>>("dislo_velocity_screw")),
 	_tau_old(getMaterialPropertyOld<std::vector<Real>>(_base_name + "applied_shear_stress")),
 	_GND_density(getMaterialProperty<std::vector<Real>>(_base_name + "GND_density")),
 
@@ -154,7 +155,8 @@ CrystalPlasticityDislocationEdgeScrew::initQpStatefulProperties()
 
 
   _dislocation_immobile[_qp].resize(_number_slip_systems);
-  _dislo_velocity[_qp].resize(_number_slip_systems);
+  _dislo_velocity_edge[_qp].resize(_number_slip_systems);
+  _dislo_velocity_screw[_qp].resize(_number_slip_systems);
   _kappa[_qp].resize(_number_slip_systems);
   
   
@@ -169,7 +171,8 @@ CrystalPlasticityDislocationEdgeScrew::initQpStatefulProperties()
     _slip_rate[_qp][i] = 0.0;
 	_dislocation_mobile[_qp][i] = 4 * _dislo_density_initial*_dislo_density_factor_CDT;
 	_dislocation_immobile[_qp][i] = 4.0 * _dislo_density_initial*_dislo_density_factor_CDT;
-	_dislo_velocity[_qp][i] = 0.00;
+	_dislo_velocity_edge[_qp][i] = 0.00;
+	_dislo_velocity_screw[_qp][i] = 0.00;
 	_kappa[_qp][i] = 0.0;
 	
   }
@@ -223,7 +226,7 @@ getDisloVelocity();
 
 for (unsigned int i = 0; i < _number_slip_systems; ++i)
   {
-		_slip_rate[_qp][i] = _previous_substep_dislocation_mobile[i] * _burgers_vector_mag * _dislo_velocity[_qp][i];
+		_slip_rate[_qp][i] = _previous_substep_dislocation_mobile[i] * _burgers_vector_mag * _dislo_velocity_edge[_qp][i];
 
     if (std::abs(_slip_rate[_qp][i]) * _substep_dt > _slip_incr_tol)
     {
@@ -368,7 +371,7 @@ CrystalPlasticityDislocationEdgeScrew::getDisloVelocity()
 		t_wait[i]  = 0.00;
 		t_run[i]   = 0.00;
 		vel_run[i] = 0.00;
-		_dislo_velocity[_qp][i] =0.00;
+		_dislo_velocity_edge[_qp][i] =0.00;
 		_dv_dtau[i] = 0.00;
    }
    
@@ -409,7 +412,7 @@ CrystalPlasticityDislocationEdgeScrew::getDisloVelocity()
 	if (vel_run[i] > small2)
 	   {  
 		t_run[i] = _L_bar[i] / vel_run[i];
-		_dislo_velocity[_qp][i] = tau_effSign[i]*_L_bar[i] / (t_wait[i] + t_run[i]);
+		_dislo_velocity_edge[_qp][i] = tau_effSign[i]*_L_bar[i] / (t_wait[i] + t_run[i]);
 		_dv_dtau[i] = 0.00;
 
 		inner = 1.0 - std::pow((tau_effAbs[i] / slip_r[i] ),_q1);
@@ -418,13 +421,13 @@ CrystalPlasticityDislocationEdgeScrew::getDisloVelocity()
 		dtw_dtau = (-1)*_q1*_q2*deltaG0/(omega0*boltz*_temp) * exp(exp_arg) * ( std::pow(inner,_q2-1) ) * std::pow((tau_effAbs[i] / slip_r[i] ),_q1-1) *(tau_effSign[i]/slip_r[i]);
 		dtr_dtau = (_L_bar[i]*B0/_burgers_vector_mag)*(tau_effSign[i]/std::pow(tau_effAbs[i],2));
 		_dv_dtau[i] = 0.00; //-1*_L_bar[i]*std::pow((t_wait[i] + t_run[i]),-2) * (dtw_dtau + dtr_dtau);
-	    _dislo_velocity[_qp][i] = std::pow((tau_effAbs[i] / slip_r[i]),1.0/_q1) * tau_effSign[i]; // signed dislocation velocity
+	    _dislo_velocity_edge[_qp][i] = std::pow((tau_effAbs[i] / slip_r[i]),1.0/_q1) * tau_effSign[i]; // signed dislocation velocity
 	    _dv_dtau[i] = (1.0/_q1)*std::pow((tau_effAbs[i] / slip_r[i]),(1.0/_q1 - 1))*(tau_effSign[i]/slip_r[i]) * tau_effSign[i];
 	
 		}
 	else
 	  {
-	  _dislo_velocity[_qp][i] = 0.00;
+	  _dislo_velocity_edge[_qp][i] = 0.00;
 	  _dv_dtau[i] = 0.00;
 	  }
   }
@@ -450,7 +453,7 @@ CrystalPlasticityDislocationEdgeScrew::DDCUpdate()
 			_kappa_grad[i](0) = (_DD_EdgePositive_Grad[_qp](i) - _DD_EdgeNegative_Grad[_qp](i))*_dislo_density_factor_CDT;
 			_kappa_grad[i](1) = (_DD_EdgePositive_Grad[_qp](i+_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+_number_slip_systems))*_dislo_density_factor_CDT;
 			_kappa_grad[i](2) = (_DD_EdgePositive_Grad[_qp](i+2*_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+2*_number_slip_systems))*_dislo_density_factor_CDT;
-			_tau_b_local[i] = 0.5*(( mu * std::pow(_L_bar[i],1))/(2*3.141*(1-nu)))*_burgers_vector_mag * (_kappa_grad[i]*slip_direction_rotated);
+			_tau_b_local[i] = 1.0*(( mu * std::pow(_L_bar[i],1))/(2*3.141*(1-nu)))*_burgers_vector_mag * (_kappa_grad[i]*slip_direction_rotated);
 			Stress_internal += _tau_b_local[i]*(libMesh::outer_product(slip_direction_rotated, slip_plane_normal_rotated) + libMesh::outer_product(slip_plane_normal_rotated, slip_direction_rotated));
 
 		  }
