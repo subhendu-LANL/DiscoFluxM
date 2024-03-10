@@ -43,6 +43,8 @@ protected:
 
   //RealVectorValue _V, _V_neighbor;
   Real  _density_critical, _tau_critical, _scale_factor;
+  bool printedTransferMatrix=false;
+  bool _is_dislocation_transfer_positive = false, isResidual = false;
   const ArrayVariableValue & _u_Old;
   
   RealVectorValue velocity, velocity_neighbor;

@@ -52,7 +52,7 @@ ArrayOutflowBCCDT::computeQpResidual(RealEigenVector & residual)
 	computeSlipDirection();
   for (unsigned int i = 0; i < _count; i++)
   {
-	  if(_u[_qp][i]>0.0) residual[i] = _test[_i][_qp] * _u[_qp][i] * (_Dislo_Velocity[i] * _normals[_qp]);
+	  if(_u[_qp][i]>0.0) residual[i] = _test[_i][_qp] * (_u[_qp][i] - 1.0) * (_Dislo_Velocity[i] * _normals[_qp]);
 	  else residual[i] = 0.00;
   }
 }

@@ -187,6 +187,7 @@ CrystalPlasticityDislocationEdgeScrew::storeDislocationMobilityInformation()
 	_slip_direction_edge[_qp][i] = _slip_direction[i];
 	_slip_direction_edge[_qp][i] /= _slip_direction_edge[_qp][i].norm();
 	_slip_direction_edge[_qp][i] = _crysrot[_qp] * _slip_direction_edge[_qp][i]; 
+
 	_slip_plane_normalboth[_qp][i] = _slip_plane_normal[i];
 	_slip_plane_normalboth[_qp][i] /= _slip_plane_normalboth[_qp][i].norm();
 	_slip_plane_normalboth[_qp][i] = _crysrot[_qp] * _slip_plane_normalboth[_qp][i];
@@ -204,7 +205,7 @@ CrystalPlasticityDislocationEdgeScrew::setInitialConstitutiveVariableValues()
   for (unsigned int i = 0; i < _number_slip_systems; ++i)
   {
 	_dislocation_mobile[_qp][i] = (_DD_EdgePositive[_qp][i] + _DD_EdgeNegative[_qp][i] + _DD_ScrewPositive[_qp][i] + _DD_ScrewNegative[_qp][i]) * _dislo_density_factor_CDT;
-	_previous_substep_dislocation_mobile[i] = 4.0 * _dislo_density_initial*_dislo_density_factor_CDT; // _dislocation_mobile[_qp][i] ; 
+	_previous_substep_dislocation_mobile[i] = _dislocation_mobile[_qp][i] ;  //4.0 * _dislo_density_initial*_dislo_density_factor_CDT; // _dislocation_mobile[_qp][i] ; 
   }
 	_dislocation_immobile[_qp] = _dislocation_immobile_old[_qp];
     _previous_substep_dislocation_immobile = _dislocation_immobile_old[_qp];
@@ -226,7 +227,7 @@ getDisloVelocity();
 
 for (unsigned int i = 0; i < _number_slip_systems; ++i)
   {
-		_slip_rate[_qp][i] = _previous_substep_dislocation_mobile[i] * _burgers_vector_mag * _dislo_velocity_edge[_qp][i];
+		_slip_rate[_qp][i] = (_DD_EdgePositive[_qp][i] + _DD_EdgeNegative[_qp][i]) * _dislo_density_factor_CDT * _burgers_vector_mag * _dislo_velocity_edge[_qp][i];
 
     if (std::abs(_slip_rate[_qp][i]) * _substep_dt > _slip_incr_tol)
     {
@@ -321,7 +322,7 @@ CrystalPlasticityDislocationEdgeScrew::updateStateVariables()
 		  for (unsigned int j = 0; j < _number_slip_systems; ++j)
 		  {
 			if(i==j ? Hij=1.0: Hij=0.1) 
-		    eff_dislocation_density += Hij*(_previous_substep_dislocation_mobile[j] + _dislocation_immobile[_qp][j]); 
+		    eff_dislocation_density += Hij*(_dislocation_mobile[_qp][j] + _dislocation_immobile[_qp][j]); 
 		  }
 	  _slip_resistance[_qp][i] = _lattice_friction + _Coeff_hardening*mu*_burgers_vector_mag*std::sqrt(eff_dislocation_density); 
 	  }
@@ -444,8 +445,8 @@ CrystalPlasticityDislocationEdgeScrew::DDCUpdate()
   
 		for (unsigned int i = 0; i < _number_slip_systems; ++i)
 		  {	
-			slip_direction_rotated = _crysrot[_qp] * _slip_direction[i];
-			slip_plane_normal_rotated = _crysrot[_qp] * _slip_plane_normal[i];
+			slip_direction_rotated = _slip_direction[i];
+			slip_plane_normal_rotated = _slip_plane_normal[i];
 			_L_bar[i] = std::pow((_dislocation_mobile[_qp][i] + _dislocation_immobile[_qp][i]),-0.5); 
 			dislocationsPositive = _DD_EdgePositive[_qp][i];
 			dislocationsNegative = _DD_EdgeNegative[_qp][i];
@@ -459,6 +460,8 @@ CrystalPlasticityDislocationEdgeScrew::DDCUpdate()
 		  }
 		  for (unsigned int i = 0; i < _number_slip_systems; ++i) 
 		  {
+			slip_direction_rotated = _slip_direction[i];
+			slip_plane_normal_rotated = _slip_plane_normal[i];
 			_tau_b_local[i] = Stress_internal.contract(libMesh::outer_product(slip_direction_rotated, slip_plane_normal_rotated));
 		  }
 }

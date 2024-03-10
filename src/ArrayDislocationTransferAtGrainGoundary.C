@@ -72,35 +72,29 @@ ArrayDislocationTransferAtGrainGoundary::ArrayDislocationTransferAtGrainGoundary
 RealEigenVector
 ArrayDislocationTransferAtGrainGoundary::computeQpResidual(Moose::DGResidualType type)
 {  
-  RealEigenVector r ; // = 0;
-  r.resize(_count);
-  r.setZero();
+  RealEigenVector res ; // = 0;
+  res.resize(_count);
+  res.setZero();
 
-	//if(_current_elem->subdomain_id() == _neighbor_elem->subdomain_id())  return r;
+	if(_current_elem->subdomain_id() == _neighbor_elem->subdomain_id())  return res;
 	
+	isResidual = true;
 	computeInterfaceAdvCoeff(); 
-
-    if(_qp==0 && false)
-	for (unsigned int i = 0; i < _count; i++)
-	    if (std::abs(_discl_transfer_amount[i]) > 0.00)
-	    std::cout<<"Index:"<<i<<'\n'
-		    <<" index:"<<i<<" DD:"<<_u[_qp][i]<<" _discl_transfer_amount[i]:"<<_discl_transfer_amount[i]
-			<<'\n';
 
   switch (type)
   {
     case Moose::Element:
 	  for (unsigned int i = 0; i < _count; i++) 
-	    r[i] += _u[_qp][i] * _discl_transfer_amount[i] * _test[_i][_qp];
+	    res[i] += _u[_qp][i] * _discl_transfer_amount[i] * _test[_i][_qp];
     break;
 
     case Moose::Neighbor:
       for (unsigned int i = 0; i < _count; i++) 
-	    r[_index_outgoingslip[i]] += -_u[_qp][i] * _discl_transfer_amount[i] * _test_neighbor[_i][_qp];
+	    res[_index_outgoingslip[i]] += -_u[_qp][i] * _discl_transfer_amount[i] * _test_neighbor[_i][_qp];
       break;
   }
 
-  return r;
+  return res;
 }
 
 RealEigenVector
@@ -111,6 +105,7 @@ ArrayDislocationTransferAtGrainGoundary::computeQpJacobian(Moose::DGJacobianType
   jac.setZero();
   if(_current_elem->subdomain_id() == _neighbor_elem->subdomain_id())  return jac;
 	
+	isResidual = false;
 	computeInterfaceAdvCoeff();
 	
 
@@ -135,13 +130,14 @@ void
 ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 {
 	 Real scalarProduct =0.00, density_initial, density_critical_relative;
-	std::vector<std::vector<Real>> L_GB, M_mod_GB, M_mod_GB_Norm, N_GB, N_mod_GB;
-	std::vector<Real> Sum_M_mod_GB_i, Sum_M_mod_GB_j, MaxValue_i, MaxValue_j;
+	std::vector<std::vector<Real>> S_GB, L_GB, M_mod_GB, M_mod_GB_Norm, N_GB, N_mod_GB;
+	std::vector<Real> MaxValue_i, MaxValue_j;
 	std::vector<int> Max_i, Max_j;
 	RealVectorValue l1, l2, _slip_direction_rotated, _slip_direction_edge_rotated,
 			 _slip_direction_rotated_neighbor, _slip_plane_normal_rotated, _slip_plane_normal_rotated_neighbor;
 
 	unsigned int _number_slip_systems=_count; 
+	S_GB.resize(_number_slip_systems, std::vector<Real>(_number_slip_systems, 0.00));
 	N_GB.resize(_number_slip_systems, std::vector<Real>(_number_slip_systems, 0.00));
 	L_GB.resize(_number_slip_systems, std::vector<Real>(_number_slip_systems, 0.00));
 	M_mod_GB.resize(_number_slip_systems, std::vector<Real>(_number_slip_systems, 0.00));
@@ -149,8 +145,6 @@ ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 	Interface_Adv_Coeff.resize(_number_slip_systems, std::vector<Real>(_number_slip_systems, 0.00));
 	_index_outgoingslip.resize(_number_slip_systems,0); 
 	_discl_transfer_amount.resize(_number_slip_systems,0.00);
-	Sum_M_mod_GB_i.resize(_number_slip_systems,0.00);
-	Sum_M_mod_GB_j.resize(_number_slip_systems,0.00);
 	MaxValue_i.resize(_number_slip_systems,0.00);
 	MaxValue_j.resize(_number_slip_systems,0.00);
 	Max_i.resize(_number_slip_systems,0);
@@ -163,28 +157,25 @@ ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 	_slip_direction_rotated = _slip_direction_edge[_qp][i];
 
 	l1 = _slip_plane_normal_rotated.cross(_normals[_qp]);
+	l1 /= l1.norm();
 	for (unsigned int j = 0; j < _number_slip_systems; j++)
 	{
 		_slip_direction_rotated_neighbor = _slip_direction_edge_neighbor[_qp][j]; // Already rotated
 		_slip_plane_normal_rotated_neighbor = _slip_plane_normalboth_neighbor[_qp][j];	
 	
-		l2 = _slip_plane_normal_rotated_neighbor.cross(-_normals[_qp]);  
-		L_GB[i][j] = std::abs((l1 * l2));
+		l2 = _slip_plane_normal_rotated_neighbor.cross(-_normals[_qp]); 
+		l2 /= l2.norm(); 
+		L_GB[i][j] = std::abs(l1 * l2);
 		N_GB[i][j] =  (_slip_plane_normal_rotated * _slip_plane_normal_rotated_neighbor);
-		scalarProduct = (_slip_direction_rotated * _slip_direction_rotated_neighbor);
-		M_mod_GB[i][j] = std::abs(L_GB[i][j] * N_GB[i][j] * scalarProduct);
-		
-		Sum_M_mod_GB_i[i] += M_mod_GB[i][j];
-		Sum_M_mod_GB_j[j] += M_mod_GB[i][j];
-		
+		S_GB[i][j] = (_slip_direction_rotated * _slip_direction_rotated_neighbor);
+		M_mod_GB[i][j] = std::abs(L_GB[i][j] * N_GB[i][j] * S_GB[i][j]);
 	}
 	Real max_coeff = 0.00;
 	unsigned int index_max_coeff = 0;
 	for (unsigned int j = 0; j < _number_slip_systems; j++)
 	{
-		M_mod_GB_Norm[i][j] = M_mod_GB[i][j]/Sum_M_mod_GB_i[i];
 		Interface_Adv_Coeff[i][j] = M_mod_GB[i][j]; 
-		if(Interface_Adv_Coeff[i][j] > max_coeff && N_GB[i][j]>0.00) 
+		if(Interface_Adv_Coeff[i][j] > max_coeff ) // && N_GB[i][j]>0.00
 		{	index_max_coeff = j;
 			max_coeff = Interface_Adv_Coeff[i][j];
 		}
@@ -204,4 +195,5 @@ ArrayDislocationTransferAtGrainGoundary::computeInterfaceAdvCoeff()
 	if((_u_Old[_qp][i] > density_critical_relative) && (velocity*_normals[_qp] > 0.00) && std::abs(_tau[_qp][i])>_tau_critical) 
 	         _discl_transfer_amount[i] = _scale_factor * velocity * _normals[_qp]; 
 	}
+
 }
