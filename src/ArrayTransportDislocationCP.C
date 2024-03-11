@@ -26,7 +26,7 @@ ArrayTransportDislocationCP::validParams()
 {
   InputParameters params = ArrayKernel::validParams();
   params.addClassDescription("Continuum transport of dislocations(array variable) is modeled using advection model.");
-  MooseEnum upwinding_type("none full", "full");
+  MooseEnum upwinding_type("none full", "none");
   params.addParam<MooseEnum>("upwinding_type",
                              upwinding_type,
                              "Stabilization method used for the transport term");
@@ -159,7 +159,7 @@ ArrayTransportDislocationCP::stabilizedScheme(JacRes res_or_jac)
   prepareVectorTag(_assembly, _var.number());
 
   if (res_or_jac == JacRes::CALCULATE_JACOBIAN)
-    prepareMatrixTag(_assembly, _var.number(), jvar_num02);
+    prepareMatrixTag(_assembly, _var.number(), _var.number());
 
 
   std::vector<Real> total_mass_out;
