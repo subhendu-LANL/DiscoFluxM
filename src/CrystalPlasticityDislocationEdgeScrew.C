@@ -48,8 +48,8 @@ CrystalPlasticityDislocationEdgeScrew::validParams()
   
   params.addParam<Real>("C_multi", 8.96e-05, "parameter for dislocation multiplication");
   params.addParam<Real>("C_trap", 3.01e-03, "parameter for dislocation trapping");
-  params.addParam<Real>("C_m_ann", 0.51, "parameter for dislocation mobile annihilation");
-  params.addParam<Real>("C_im_ann", 0.51, "parameter for dislocation immobile annihilation");
+  params.addParam<Real>("C_m_ann", 0.5, "parameter for dislocation mobile annihilation");
+  params.addParam<Real>("C_im_ann", 0.5, "parameter for dislocation immobile annihilation");
   params.addParam<Real>("Coeff_hardening", 0.5, "parameter to control the material hardening");
 
   params.addParam<Real>("q1", 0.1, "material parameter");
@@ -454,7 +454,7 @@ CrystalPlasticityDislocationEdgeScrew::DDCUpdate()
 			_kappa_grad[i](0) = (_DD_EdgePositive_Grad[_qp](i) - _DD_EdgeNegative_Grad[_qp](i))*_dislo_density_factor_CDT;
 			_kappa_grad[i](1) = (_DD_EdgePositive_Grad[_qp](i+_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+_number_slip_systems))*_dislo_density_factor_CDT;
 			_kappa_grad[i](2) = (_DD_EdgePositive_Grad[_qp](i+2*_number_slip_systems) - _DD_EdgeNegative_Grad[_qp](i+2*_number_slip_systems))*_dislo_density_factor_CDT;
-			_tau_b_local[i] = 1.0*(( mu * std::pow(_L_bar[i],1))/(2*3.141*(1-nu)))*_burgers_vector_mag * (_kappa_grad[i]*slip_direction_rotated);
+			_tau_b_local[i] = 0.2*(( mu * std::pow(_L_bar[i],1))/(2*3.141*(1-nu)))*_burgers_vector_mag * (_kappa_grad[i]*slip_direction_rotated);
 			Stress_internal += _tau_b_local[i]*(libMesh::outer_product(slip_direction_rotated, slip_plane_normal_rotated) + libMesh::outer_product(slip_plane_normal_rotated, slip_direction_rotated));
 
 		  }

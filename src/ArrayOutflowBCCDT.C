@@ -41,6 +41,7 @@ ArrayOutflowBCCDT::ArrayOutflowBCCDT(const InputParameters & parameters)
     _dislo_velocity_CP_edge(getMaterialProperty<std::vector<Real>>("dislo_velocity_edge")), // Velocity value (signed)
 	_dislocationcharacter(getParam<MooseEnum>("dislocation_character").getEnum<DislocationCharacter>()),
 	_dislocationsign(getParam<MooseEnum>("dislocation_sign").getEnum<DislocationSign>()), 
+  _u_Old(_var.slnOld()),
 	_slip_direction_edge(getMaterialProperty<std::vector<RealVectorValue>>("slip_direction_edge")),
 	_slip_plane_normalboth(getMaterialProperty<std::vector<RealVectorValue>>("slip_plane_normalboth"))
 {
@@ -52,7 +53,7 @@ ArrayOutflowBCCDT::computeQpResidual(RealEigenVector & residual)
 	computeSlipDirection();
   for (unsigned int i = 0; i < _count; i++)
   {
-	  if(_u[_qp][i]>0.0) residual[i] = _test[_i][_qp] * (_u[_qp][i] - 1.0) * (_Dislo_Velocity[i] * _normals[_qp]);
+	  if(_u_Old[_qp][i]>0.0) residual[i] = _test[_i][_qp] * _u[_qp][i] * (_Dislo_Velocity[i] * _normals[_qp]);
 	  else residual[i] = 0.00;
   }
 }
@@ -66,7 +67,7 @@ ArrayOutflowBCCDT::computeQpJacobian()
   jac.setZero();
   for (unsigned int i = 0; i < _count; i++)
   {
-	  if(_u[_qp][i]>0.0) jac[i] = _test[_i][_qp] * _phi[_j][_qp] * (_Dislo_Velocity[i] * _normals[_qp]);
+	  if(_u_Old[_qp][i]>0.0) jac[i] = _test[_i][_qp] * _phi[_j][_qp] * (_Dislo_Velocity[i] * _normals[_qp]);
 	  else jac[i] = 0.00;
   }
   return jac;

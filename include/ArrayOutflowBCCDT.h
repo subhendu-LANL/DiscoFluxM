@@ -43,6 +43,7 @@ private:
   // Dislocation sign
   const enum class DislocationSign { positive, negative } _dislocationsign;
   
+  const ArrayVariableValue & _u_Old;
   const MaterialProperty<std::vector<RealVectorValue>> & _slip_direction_edge;
   const MaterialProperty<std::vector<RealVectorValue>> & _slip_plane_normalboth;
 };
